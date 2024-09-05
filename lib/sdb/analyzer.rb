@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "analyzer/version"
+require_relative "analyzer/frame_walker"
 
 module Sdb
   module Analyzer
