@@ -12,7 +12,7 @@ RSpec.describe Sdb::Analyzer do
       walker.walk
       walker.draw('roda.png')
 
-      puts 'Please check roda.png.'
+      puts 'Please check roda.png'
     end
 
     it 'rails-api' do

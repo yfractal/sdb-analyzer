@@ -37,6 +37,7 @@ module Sdb
   
       def draw(name)
         graph = GraphViz.new( :G, :type => :digraph )
+        graph[:bgcolor] = '#253238'
         @fake_generation = 0
         @total = @roots.map {|root| root.duration }.sum.to_f
   
@@ -49,22 +50,26 @@ module Sdb
   
       def draw_frame(graph, frame)
         method, file, line_no = @methods_table[frame.iseq]
-  
-        return if file == nil
-  
-        percentage = (frame.duration / @total * 100).round(2)
-        if file.include?("/")
-          label = "#{file.split("/")[-4..-1].join("/")}:#{line_no}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
-        else
-          label = "#{file}:#{line_no}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
+
+        if file == nil
+          method, file, line_no = 'unknow', 'unknow', 'unknow'
         end
   
-        node = graph.add_nodes(frame.iseq.to_s + "-#{@fake_generation}", label: label)
+        if file.include?("/")
+          label = "#{method}(#{file.split("/")[-3..-1].join("/")}:#{line_no})"
+        else
+          label = "#{method}(#{file}:#{line_no})"
+        end
+  
+        node = graph.add_nodes(frame.iseq.to_s + "-#{@fake_generation}", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
   
         @fake_generation += 1
         frame.children.each do |child|
+          duration = child.duration
+          percentage = (duration / @total * 100).round(2)
+          label = "#{duration/1000.0}ms (#{percentage}%)"
           child = draw_frame(graph, child)
-          graph.add_edges(node, child) if child
+          graph.add_edges(node, child, label: label, color: '#00a67d', fontcolor: '#00a67d') if child
         end
   
         node
