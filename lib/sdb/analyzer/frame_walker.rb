@@ -48,15 +48,15 @@ module Sdb
       end
   
       def draw_frame(graph, frame)
-        method, file = @methods_table[frame.iseq]
+        method, file, line_no = @methods_table[frame.iseq]
   
         return if file == nil
   
         percentage = (frame.duration / @total * 100).round(2)
         if file.include?("/")
-          label = "#{file.split("/")[-4..-1].join("/")}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
+          label = "#{file.split("/")[-4..-1].join("/")}:#{line_no}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
         else
-          label = "#{file}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
+          label = "#{file}:#{line_no}##{method} (#{frame.duration/1000.0} ms)(#{percentage}%)"
         end
   
         node = graph.add_nodes(frame.iseq.to_s + "-#{@fake_generation}", label: label)
@@ -88,7 +88,7 @@ module Sdb
           i = 0
   
           iseqs.each do |iseq|
-            method, file = @methods_table[iseq]
+            method, file, _ = @methods_table[iseq]
   
             if on_stack?(iseq, i)
               update_ts(i, ts)
@@ -133,8 +133,8 @@ module Sdb
           _, data = line.split("[methods],")
           methods = data[1..-3].split("],[")
           methods.each do |method_line|
-            iseq_addr, method, file = method_line.split(",")
-            iseq_to_method[iseq_addr.to_i] = [method, file]
+            iseq_addr, method, file, line_no = method_line.split(",")
+            iseq_to_method[iseq_addr.to_i] = [method, file, line_no]
           end
         end
   
