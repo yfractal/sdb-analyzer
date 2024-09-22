@@ -27,9 +27,8 @@ module Sdb
     end 
 
     class Walker
-      def initialize(traces_file, methods_file)
-        @traces_file = File.new(traces_file)
-        @methods_file = File.new(methods_file)
+      def initialize(log_file)
+        @log_file = log_file
         @methods_table = read_methods
         @roots = []
         @stack = []
@@ -75,11 +74,16 @@ module Sdb
         node
       end
   
-      def walk
-        @traces_file.each_line do |line|
+      def walk(target_trace_id)
+        File.new(@log_file).each_line do |line|
+          next if line.include?("[methods]")
+
           _, raw_data = line.split("[stack_frames]")
           data = JSON.parse(raw_data)
           trace_id = data[0]
+
+          next if trace_id != target_trace_id
+
           ts = data[1]
           iseqs = data[2..-1].reverse # root to deeptest
   
@@ -132,9 +136,17 @@ module Sdb
       end
   
       def read_methods
+        @method_lines = []
+
+        File.new(@log_file).each_line do |line|
+          if line.include?("[methods]")
+            @method_lines << line
+          end
+        end
+
         iseq_to_method = {}
   
-        @methods_file.each_line do |line|
+        @method_lines.each do |line|
           _, data = line.split("[methods],")
           methods = data[1..-3].split("],[")
           methods.each do |method_line|
