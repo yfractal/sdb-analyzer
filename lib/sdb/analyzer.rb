@@ -2,6 +2,7 @@
 
 require_relative "analyzer/version"
 require_relative "analyzer/frame_walker"
+require_relative "analyzer/helper"
 
 module Sdb
   module Analyzer
