@@ -97,8 +97,6 @@ module Sdb
           i = 0
   
           iseqs.each do |iseq|
-            method, file, _ = @methods_table[iseq]
-  
             if on_stack?(iseq, i)
               update_ts(i, ts)
             else
