@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "analyzer/version"
+require_relative "analyzer/exporter"
 require_relative "analyzer/frame_walker"
 require_relative "analyzer/reader"
 require_relative "analyzer/helper"
