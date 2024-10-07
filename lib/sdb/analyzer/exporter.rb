@@ -18,7 +18,6 @@ module Sdb
       start_ts = rows[0]['start_ts']
       rows.each do |row|
         thread_id = row['pid']
-        # next if thread_id != 24081
 
         if !thread_id_to_thread_name[thread_id]
           thread_id_to_thread_name[thread_id] = true
@@ -26,7 +25,7 @@ module Sdb
           output_rows << {"ph": "E", "pid": row['pid'], "tid": row['tgid'], "ts": covert_ts(row['start_ts'] - start_ts)}
         end
 
-        output_rows << {"ph": "B", "pid": row['pid'], "tid":  row['tgid'], "ts": covert_ts(row['start_ts'] - start_ts), "name": "started"}
+        output_rows << {"ph": "B", "pid": row['pid'], "tid":  row['tgid'], "ts": covert_ts(row['start_ts'] - start_ts), "name": "oncpu"}
         output_rows << {"ph": "E", "pid": row['pid'], "tid":  row['tgid'], "ts": covert_ts(row['end_ts'] - start_ts)}
       end
 
