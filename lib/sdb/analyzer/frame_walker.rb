@@ -27,8 +27,9 @@ module Sdb
     end 
 
     class Walker
-      def initialize(log_file)
+      def initialize(log_file, iseq_file)
         @log_file = log_file
+        @iseq_file = iseq_file
         @methods_table = read_methods
         @roots = []
         @stack = []
@@ -134,25 +135,14 @@ module Sdb
       end
   
       def read_methods
-        @method_lines = []
-
-        File.new(@log_file).each_line do |line|
-          if line.include?("[methods]")
-            @method_lines << line
-          end
-        end
-
+    
         iseq_to_method = {}
-  
-        @method_lines.each do |line|
-          _, data = line.split("[methods],")
-          methods = data[1..-3].split("],[")
-          methods.each do |method_line|
-            iseq_addr, method, file, line_no = method_line.split(",")
-            iseq_to_method[iseq_addr.to_i] = [method, file, line_no]
-          end
+
+        File.new(@iseq_file).each_line do |line|
+          data = JSON.parse(line)
+          iseq_to_method[data['iseq_addr']] = data['name'], data['path'], data['first_lineno']
         end
-  
+
         iseq_to_method
       end
     end

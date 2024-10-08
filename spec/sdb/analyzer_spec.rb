@@ -38,4 +38,12 @@ RSpec.describe Sdb::Analyzer do
       puts 'please check http-request.png'
     end
   end
+
+  context 'new iseq' do
+    walker = Sdb::FrameWalker::Walker.new('data/traces.log', 'data/iseqs.log')
+    walker.walk(11111116)
+    walker.draw('http-requestx.png')
+
+    puts 'please check http-requestx.png'
+  end
 end
