@@ -80,6 +80,7 @@ module Sdb
           next if line.include?("[methods]")
 
           _, raw_data = line.split("[stack_frames]")
+          next if raw_data.nil?
           data = JSON.parse(raw_data)
           trace_id = data[0]
 
