@@ -135,14 +135,24 @@ module Sdb
       end
 
       def read_methods
+        stacks = []
 
         iseq_to_method = {}
 
         File.new(@iseq_file).each_line do |line|
           data = JSON.parse(line)
-          iseq_to_method[data['iseq_addr']] = data['name'], data['path'], data['first_lineno']
+          if data["event"] == 0
+            stacks << data
+          elsif data["event"] == 1
+            start = stacks.pop
+            addr = data['iseq_addr']
+            iseq_to_method[addr] = start['name'], start['path'], start['first_lineno']
+          else
+            raise 'wrong type'
+          end
         end
 
+        puts "Lost end of iseq creation" if stacks != []
         iseq_to_method
       end
     end
