@@ -65,9 +65,17 @@ RSpec.describe Sdb::Analyzer do
 
   it 'draws rails-api request' do
     walker = Sdb::FrameWalker::Walker.new('./data/sdb-rails-api.log', './data/iseqs-rails-api.log')
-    walker.walk(1111112)
-    walker.draw('rails-api.png')
+    walker.walk(1111114)
+    walker.draw('images/rails-api.png')
 
-    puts 'please check rails-api.png'
+    puts 'please check images/rails-api.png'
+  end
+
+  it 'draws homeland request' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-homeland.log', './data/iseqs-homeland.log')
+    walker.walk(1111113)
+    walker.draw('images/homeland.png')
+
+    puts 'please check images/homeland.png'
   end
 end

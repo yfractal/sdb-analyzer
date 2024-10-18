@@ -54,7 +54,7 @@ module Sdb
           method, file, line_no = frame.iseq.to_s, frame.iseq.to_s, frame.iseq.to_s
         end
 
-        if file.include?("/")
+        if file.include?("/") && !file.split("/")[-3..-1].nil?
           label = "#{method}(#{file.split("/")[-3..-1].join("/")}:#{line_no})"
         else
           label = "#{method}(#{file}:#{line_no})"
