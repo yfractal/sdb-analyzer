@@ -39,11 +39,35 @@ RSpec.describe Sdb::Analyzer do
     end
   end
 
-  context 'new iseq' do
+  it 'new iseq' do
     walker = Sdb::FrameWalker::Walker.new('data/traces.log', 'data/iseqs.log')
     walker.walk(11111116)
     walker.draw('http-requestx.png')
 
     puts 'please check http-requestx.png'
+  end
+
+  it 'homeland' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-homeland.log', './data/iseqs-homeland.log')
+    walker.walk(1111113)
+    walker.draw('homeland.png')
+
+    puts 'please check homeland.png'
+  end
+
+  it 'draws roda request' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-roda.log', './data/iseqs-roda.log')
+    walker.walk(1111115)
+    walker.draw('roda.png')
+
+    puts 'please check roda.png'
+  end
+
+  it 'draws rails-api request' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-rails-api.log', './data/iseqs-rails-api.log')
+    walker.walk(1111112)
+    walker.draw('rails-api.png')
+
+    puts 'please check rails-api.png'
   end
 end
