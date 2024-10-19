@@ -26,6 +26,16 @@ module Sdb
 
         data
       end
+
+      def average_delay(data, type = :delay)
+        if type == :delay
+          times = data.map {|d| d[:delay]}
+          times.sum.to_f / times.count
+        elsif type == :cpu_time
+          times = data.map {|d| d[:cpu_time]}
+          times.sum.to_f / times.count
+        end
+      end
     end
   end
 end
