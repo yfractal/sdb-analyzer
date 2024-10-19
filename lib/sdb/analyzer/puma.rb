@@ -27,6 +27,20 @@ module Sdb
         data
       end
 
+      def statistic(data)
+        {
+          total: data.count,
+          avg: average_delay(data),
+          cpu_time_avg: average_delay(data, :cpu_time),
+          p50: p_x(50, data, :delay),
+          cpu_time_p50: p_x(50, data, :cpu_time),
+          p90: p_x(90, data, :delay),
+          cpu_time_p90: p_x(90, data, :cpu_time),
+          p99: p_x(99, data, :delay),
+          cpu_time_p99: p_x(99, data, :cpu_time),
+        }
+      end
+
       private
 
       def average_delay(data, type = :delay)
@@ -39,7 +53,12 @@ module Sdb
         end
       end
 
-      def p_x(percentage, array)
+      def p_x(percentage, data, field)
+        numbers = data.map{|d| d[field]}
+        p_x_helper(percentage, numbers)
+      end
+
+      def p_x_helper(percentage, array)
         return nil if array.empty?
       
         sorted = array.sort
