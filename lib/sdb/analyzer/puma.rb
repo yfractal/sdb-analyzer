@@ -27,6 +27,8 @@ module Sdb
         data
       end
 
+      private
+
       def average_delay(data, type = :delay)
         if type == :delay
           times = data.map {|d| d[:delay]}
@@ -34,6 +36,24 @@ module Sdb
         elsif type == :cpu_time
           times = data.map {|d| d[:cpu_time]}
           times.sum.to_f / times.count
+        end
+      end
+
+      def p_x(percentage, array)
+        return nil if array.empty?
+      
+        sorted = array.sort
+      
+        rank = percentage.to_f / 100 * (sorted.size - 1)
+        lower_index = rank.floor
+        upper_index = rank.ceil
+      
+        if lower_index == upper_index
+          sorted[lower_index]
+        else
+          lower_value = sorted[lower_index]
+          upper_value = sorted[upper_index]
+          lower_value + (upper_value - lower_value) * (rank - lower_index)
         end
       end
     end
