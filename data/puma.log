@@ -1,0 +1,20 @@
+I, [2024-10-19T14:41:56.036601 #64502]  INFO -- : [f4f92261-d340-4820-a3fd-ca86604de772] Started GET "/api/v3/topics" for 127.0.0.1 at 2024-10-19 14:41:56 +0800
+I, [2024-10-19T14:41:56.040650 #64502]  INFO -- : [f4f92261-d340-4820-a3fd-ca86604de772] Processing by Api::V3::TopicsController#index as */*
+I, [2024-10-19T14:41:56.132937 #64502]  INFO -- : [f4f92261-d340-4820-a3fd-ca86604de772] Completed 200 OK in 88ms (Views: 47.7ms | ActiveRecord: 25.6ms | Allocations: 72298)
+I, [2024-10-19T14:41:56.134917 #64502]  INFO -- : [SDB][puma-delay]: trace_id=1111111, thread_id=54517935, remote_port=49336, delay=120.947 ms, cpu_time=83.816 ms
+I, [2024-10-19T14:41:56.141994 #64502]  INFO -- : [267db8db-3b62-46fc-9d79-2618e8a9ec0d] Started GET "/api/v3/topics" for 127.0.0.1 at 2024-10-19 14:41:56 +0800
+I, [2024-10-19T14:41:56.142679 #64502]  INFO -- : [267db8db-3b62-46fc-9d79-2618e8a9ec0d] Processing by Api::V3::TopicsController#index as */*
+I, [2024-10-19T14:41:56.159164 #64502]  INFO -- : [267db8db-3b62-46fc-9d79-2618e8a9ec0d] Completed 200 OK in 16ms (Views: 14.5ms | ActiveRecord: 1.2ms | Allocations: 24398)
+I, [2024-10-19T14:41:56.160306 #64502]  INFO -- : [SDB][puma-delay]: trace_id=1111112, thread_id=54517936, remote_port=49342, delay=18.762999999999998 ms, cpu_time=15.190999999999995 ms
+I, [2024-10-19T14:41:56.167053 #64502]  INFO -- : [6424f4b6-9ae0-4e5b-a2c5-af538ef816a4] Started GET "/api/v3/topics" for 127.0.0.1 at 2024-10-19 14:41:56 +0800
+I, [2024-10-19T14:41:56.167679 #64502]  INFO -- : [6424f4b6-9ae0-4e5b-a2c5-af538ef816a4] Processing by Api::V3::TopicsController#index as */*
+I, [2024-10-19T14:41:56.184859 #64502]  INFO -- : [6424f4b6-9ae0-4e5b-a2c5-af538ef816a4] Completed 200 OK in 17ms (Views: 15.1ms | ActiveRecord: 1.3ms | Allocations: 24341)
+I, [2024-10-19T14:41:56.186129 #64502]  INFO -- : [SDB][puma-delay]: trace_id=1111113, thread_id=54517935, remote_port=49343, delay=19.427 ms, cpu_time=15.14 ms
+I, [2024-10-19T14:41:56.192746 #64502]  INFO -- : [a667ca82-aebb-48e2-a9d2-c70ec37a6b76] Started GET "/api/v3/topics" for 127.0.0.1 at 2024-10-19 14:41:56 +0800
+I, [2024-10-19T14:41:56.193325 #64502]  INFO -- : [a667ca82-aebb-48e2-a9d2-c70ec37a6b76] Processing by Api::V3::TopicsController#index as */*
+I, [2024-10-19T14:41:56.208934 #64502]  INFO -- : [a667ca82-aebb-48e2-a9d2-c70ec37a6b76] Completed 200 OK in 15ms (Views: 13.5ms | ActiveRecord: 1.4ms | Allocations: 24346)
+I, [2024-10-19T14:41:56.210125 #64502]  INFO -- : [SDB][puma-delay]: trace_id=1111114, thread_id=54517936, remote_port=49344, delay=17.661 ms, cpu_time=13.462999999999989 ms
+I, [2024-10-19T14:41:56.217134 #64502]  INFO -- : [841e4476-7ec2-450e-8fc4-8c680c4c7770] Started GET "/api/v3/topics" for 127.0.0.1 at 2024-10-19 14:41:56 +0800
+I, [2024-10-19T14:41:56.217755 #64502]  INFO -- : [841e4476-7ec2-450e-8fc4-8c680c4c7770] Processing by Api::V3::TopicsController#index as */*
+I, [2024-10-19T14:41:56.233820 #64502]  INFO -- : [841e4476-7ec2-450e-8fc4-8c680c4c7770] Completed 200 OK in 16ms (Views: 14.0ms | ActiveRecord: 1.3ms | Allocations: 24341)
+I, [2024-10-19T14:41:56.234909 #64502]  INFO -- : [SDB][puma-delay]: trace_id=1111115, thread_id=54517935, remote_port=49345, delay=18.179000000000002 ms, cpu_time=13.99600000000001 ms
