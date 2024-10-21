@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'ruby-graphviz'
 require 'json'
 
@@ -75,18 +74,22 @@ module Sdb
       end
 
       def walk(target_trace_id)
+        rows = []
         File.new(@log_file).each_line do |line|
-          next if line.include?("[methods]")
-
           _, raw_data = line.split("[stack_frames]")
           next if raw_data.nil?
           data = JSON.parse(raw_data)
-          trace_id = data[0]
 
-          next if trace_id != target_trace_id
+          rows << data
+        end
 
-          ts = data[1]
-          iseqs = data[2..-1].reverse # root to deeptest
+        frames = Sdb::Analyzer::FrameReader.read(rows)
+
+        frames.each do |frame|
+          next if frame[0] != target_trace_id
+
+          ts = frame[1]
+          iseqs = frame[2..-1].reverse # root to deeptest
 
           frame_diff_count = @stack.count - iseqs.count
 
