@@ -38,6 +38,8 @@ module Sdb
           frames
         end
 
+        private
+
         def frame_ended?(i, current_row, next_row)
           next_row ||= []
 
