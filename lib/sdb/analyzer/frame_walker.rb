@@ -44,21 +44,47 @@ module Sdb
 
         @roots.each do |frame|
           meta = find_meta(frame)
+          meta[:frame_count] = 0
+          meta[:iseqs_count] = 0
+          meta[:c_iseqs_count] = 0
+          meta[:no_symobls_count] = 0
+          meta[:duration] = frame.duration
+          meta[:captured_duration_count] = 0
 
           draw_frame(graph, frame, meta)
 
           controller = "#{meta[:controller_entry][:file].split('/')[-1].gsub('.rb', '').split('_').map(&:capitalize).join}##{meta[:controller_entry][:method]}"
           label = "controller: #{controller}, status: #{meta[:status]}"
           graph.add_nodes("labels", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
+
+          puts "meta=#{meta}"
         end
 
         graph.output( :png => name )
       end
 
       def draw_frame(graph, frame, meta)
+        meta[:iseqs_count] += 1
+
+        if frame.children.count == 0
+          meta[:frame_count] += 1
+        end
+
+        if frame.iseq == 0
+          meta[:c_iseqs_count] += 1
+        end
+
+        if frame.duration != 0
+          meta[:captured_duration_count] += 1
+        end
+
         method, file, line_no = @methods_table[frame.iseq]
+        if method == nil
+          meta[:no_symobls_count] += 1
+        end
+
         if file == nil
-          method, file, line_no = frame.iseq.to_s, frame.iseq.to_s, frame.iseq.to_s
+          method, file, line_no = frame.iseq.to_s, "", "0"
         end
 
         if file.include?('app/controllers') && meta[:controller_entry].nil?
