@@ -6,9 +6,10 @@ module Sdb
   module FrameWalker
     class Frame
       attr_writer :parent
-      attr_reader :iseq, :children, :duration
+      attr_reader :trace_id, :iseq, :ts, :children, :duration
 
-      def initialize(iseq, ts)
+      def initialize(trace_id, iseq, ts)
+        @trace_id = trace_id
         @iseq     = iseq
         @ts       = ts
         @duration = 0
@@ -32,6 +33,7 @@ module Sdb
         @methods_table = read_methods
         @roots = []
         @stack = []
+        @metas = []
       end
 
       def draw(name)
@@ -41,16 +43,26 @@ module Sdb
         @total = @roots.map {|root| root.duration }.sum.to_f
 
         @roots.each do |frame|
-          draw_frame(graph, frame)
+          meta = find_meta(frame)
+
+          draw_frame(graph, frame, meta)
+
+          controller = "#{meta[:controller_entry][:file].split('/')[-1].gsub('.rb', '').split('_').map(&:capitalize).join}##{meta[:controller_entry][:method]}"
+          label = "controller: #{controller}, status: #{meta[:status]}"
+          graph.add_nodes("labels", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
         end
 
         graph.output( :png => name )
       end
 
-      def draw_frame(graph, frame)
+      def draw_frame(graph, frame, meta)
         method, file, line_no = @methods_table[frame.iseq]
         if file == nil
           method, file, line_no = frame.iseq.to_s, frame.iseq.to_s, frame.iseq.to_s
+        end
+
+        if file.include?('app/controllers') && meta[:controller_entry].nil?
+          meta[:controller_entry] = {file: file, method: method}
         end
 
         if file.include?("/") && !file.split("/")[-3..-1].nil?
@@ -66,7 +78,7 @@ module Sdb
           duration = child.duration
           percentage = (duration / @total * 100).round(2)
           label = "#{duration/1000.0}ms (#{percentage}%)"
-          child = draw_frame(graph, child)
+          child = draw_frame(graph, child, meta)
           graph.add_edges(node, child, label: label, color: '#00a67d', fontcolor: '#00a67d') if child
         end
 
@@ -75,12 +87,18 @@ module Sdb
 
       def walk(target_trace_id)
         rows = []
-        File.new(@log_file).each_line do |line|
-          _, raw_data = line.split("[stack_frames]")
-          next if raw_data.nil?
-          data = JSON.parse(raw_data)
 
-          rows << data
+        File.new(@log_file).each_line do |line|
+          if line.include?("[SDB][puma-delay]")
+            @metas << Analyzer::Puma.read_line(line)
+
+          elsif line.include?("[stack_frames]")
+            _, raw_data = line.split("[stack_frames]")
+
+            data = JSON.parse(raw_data)
+
+            rows << data
+          end
         end
 
         frames = Sdb::Analyzer::FrameReader.read(rows)
@@ -104,7 +122,7 @@ module Sdb
             if on_stack?(iseq, i)
               update_ts(i, ts)
             else
-              on_stack(iseq, ts, i)
+              on_stack(frame[0], iseq, ts, i)
             end
 
             i += 1
@@ -113,6 +131,16 @@ module Sdb
       end
 
       private
+      def find_meta(frame)
+        @metas.each do |meta|
+          # TODO: frame's ts and meta's ts is fetched in different threads
+          # they may not match exactly. So may need some buffer
+          if frame.trace_id == meta[:trace_id] && frame.ts >= meta[:start_ts] && frame.ts + frame.duration <= meta[:end_ts]
+            return meta
+          end
+        end
+      end
+
       def update_ts(i, ts)
         frame = @stack[i]
         frame.update_ts(ts)
@@ -122,8 +150,8 @@ module Sdb
         @stack[i] && @stack[i].iseq == iseq
       end
 
-      def on_stack(iseq, ts, i)
-        frame = Frame.new(iseq, ts)
+      def on_stack(trace_id, iseq, ts, i)
+        frame = Frame.new(trace_id, iseq, ts)
         if i == 0
           @roots << frame
         end
