@@ -14,7 +14,11 @@ module Sdb
             end
 
             if key == 'trace_id'
-              value = value.to_i # trace_id is integer
+              value = value.to_i
+            end
+
+            if key == 'start_ts' || key == 'end_ts'
+              value = value.to_f
             end
 
             [key.to_sym, value]

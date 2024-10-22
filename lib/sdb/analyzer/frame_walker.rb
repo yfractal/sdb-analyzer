@@ -6,7 +6,7 @@ module Sdb
   module FrameWalker
     class Frame
       attr_writer :parent
-      attr_reader :trace_id, :iseq, :children, :duration
+      attr_reader :trace_id, :iseq, :ts, :children, :duration
 
       def initialize(trace_id, iseq, ts)
         @trace_id = trace_id
@@ -43,6 +43,9 @@ module Sdb
         @total = @roots.map {|root| root.duration }.sum.to_f
 
         @roots.each do |frame|
+          meta = find_meta(frame)
+          graph.add_nodes("status", label: "status: #{meta[:status]}", color: '#2e95d3', fontcolor: '#2e95d3')
+
           draw_frame(graph, frame)
         end
 
@@ -121,6 +124,16 @@ module Sdb
       end
 
       private
+      def find_meta(frame)
+        @metas.each do |meta|
+          # TODO: frame's ts and meta's ts is fetched in different threads
+          # they may not match exactly. So may need some buffer
+          if frame.trace_id == meta[:trace_id] && frame.ts >= meta[:start_ts] && frame.ts + frame.duration <= meta[:end_ts]
+            return meta
+          end
+        end
+      end
+
       def update_ts(i, ts)
         frame = @stack[i]
         frame.update_ts(ts)
