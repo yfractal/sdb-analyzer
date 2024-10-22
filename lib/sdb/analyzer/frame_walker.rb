@@ -44,18 +44,25 @@ module Sdb
 
         @roots.each do |frame|
           meta = find_meta(frame)
-          graph.add_nodes("status", label: "status: #{meta[:status]}", color: '#2e95d3', fontcolor: '#2e95d3')
 
-          draw_frame(graph, frame)
+          draw_frame(graph, frame, meta)
+
+          controller = "#{meta[:controller_entry][:file].split('/')[-1].gsub('.rb', '').split('_').map(&:capitalize).join}##{meta[:controller_entry][:method]}"
+          label = "controller: #{controller}, status: #{meta[:status]}"
+          graph.add_nodes("labels", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
         end
 
         graph.output( :png => name )
       end
 
-      def draw_frame(graph, frame)
+      def draw_frame(graph, frame, meta)
         method, file, line_no = @methods_table[frame.iseq]
         if file == nil
           method, file, line_no = frame.iseq.to_s, frame.iseq.to_s, frame.iseq.to_s
+        end
+
+        if file.include?('app/controllers') && meta[:controller_entry].nil?
+          meta[:controller_entry] = {file: file, method: method}
         end
 
         if file.include?("/") && !file.split("/")[-3..-1].nil?
@@ -71,7 +78,7 @@ module Sdb
           duration = child.duration
           percentage = (duration / @total * 100).round(2)
           label = "#{duration/1000.0}ms (#{percentage}%)"
-          child = draw_frame(graph, child)
+          child = draw_frame(graph, child, meta)
           graph.add_edges(node, child, label: label, color: '#00a67d', fontcolor: '#00a67d') if child
         end
 
