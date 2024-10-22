@@ -3,6 +3,25 @@
 module Sdb
   module Analyzer
     class Puma
+      class << self
+        def read_line(line)
+          content = line.split('[SDB][puma-delay]:')[-1].strip
+          content.split(', ').map do |pair|
+            key, value = pair.split('=')
+
+            if value.include? 'ms'
+              value = value.gsub(/ ms/, '').to_f
+            end
+
+            if key == 'trace_id'
+              value = value.to_i # trace_id is integer
+            end
+
+            [key.to_sym, value]
+          end.to_h
+        end
+      end
+
       def initialize(log)
         @log = log
       end
@@ -11,16 +30,7 @@ module Sdb
         data = []
         File.new(@log).each_line do |line|
           if line.include? '[SDB][puma-delay]'
-            content = line.split('[SDB][puma-delay]:')[-1].strip
-            data << content.split(', ').map do |pair|
-              key, value = pair.split('=')
-
-              if value.include? 'ms'
-                value = value.gsub(/ ms/, '').to_f
-              end
-
-              [key.to_sym, value]
-            end.to_h
+            data << self.class.read_line(line)
           end
         end
 
@@ -60,13 +70,13 @@ module Sdb
 
       def p_x_helper(percentage, array)
         return nil if array.empty?
-      
+
         sorted = array.sort
-      
+
         rank = percentage.to_f / 100 * (sorted.size - 1)
         lower_index = rank.floor
         upper_index = rank.ceil
-      
+
         if lower_index == upper_index
           sorted[lower_index]
         else

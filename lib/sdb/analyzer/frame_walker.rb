@@ -6,9 +6,10 @@ module Sdb
   module FrameWalker
     class Frame
       attr_writer :parent
-      attr_reader :iseq, :children, :duration
+      attr_reader :trace_id, :iseq, :children, :duration
 
-      def initialize(iseq, ts)
+      def initialize(trace_id, iseq, ts)
+        @trace_id = trace_id
         @iseq     = iseq
         @ts       = ts
         @duration = 0
@@ -32,6 +33,7 @@ module Sdb
         @methods_table = read_methods
         @roots = []
         @stack = []
+        @metas = []
       end
 
       def draw(name)
@@ -75,12 +77,18 @@ module Sdb
 
       def walk(target_trace_id)
         rows = []
-        File.new(@log_file).each_line do |line|
-          _, raw_data = line.split("[stack_frames]")
-          next if raw_data.nil?
-          data = JSON.parse(raw_data)
 
-          rows << data
+        File.new(@log_file).each_line do |line|
+          if line.include?("[SDB][puma-delay]")
+            @metas << Analyzer::Puma.read_line(line)
+
+          elsif line.include?("[stack_frames]")
+            _, raw_data = line.split("[stack_frames]")
+
+            data = JSON.parse(raw_data)
+
+            rows << data
+          end
         end
 
         frames = Sdb::Analyzer::FrameReader.read(rows)
@@ -104,7 +112,7 @@ module Sdb
             if on_stack?(iseq, i)
               update_ts(i, ts)
             else
-              on_stack(iseq, ts, i)
+              on_stack(frame[0], iseq, ts, i)
             end
 
             i += 1
@@ -122,8 +130,8 @@ module Sdb
         @stack[i] && @stack[i].iseq == iseq
       end
 
-      def on_stack(iseq, ts, i)
-        frame = Frame.new(iseq, ts)
+      def on_stack(trace_id, iseq, ts, i)
+        frame = Frame.new(trace_id, iseq, ts)
         if i == 0
           @roots << frame
         end
