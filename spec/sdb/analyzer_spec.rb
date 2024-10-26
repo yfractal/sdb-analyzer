@@ -78,4 +78,12 @@ RSpec.describe Sdb::Analyzer do
 
     puts 'please check images/homeland.png'
   end
+
+  it 'handles bootsnap' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-homeland-bootsnap.log', './data/iseqs-homeland-bootsnap.log')
+    walker.walk(1111112)
+    walker.draw('images/homeland.png')
+
+    puts 'please check images/homeland.png'
+  end
 end
