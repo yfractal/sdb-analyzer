@@ -73,7 +73,7 @@ RSpec.describe Sdb::Analyzer do
 
   it 'draws homeland request' do
     walker = Sdb::FrameWalker::Walker.new('./data/sdb-homeland.log', './data/iseqs-homeland.log')
-    walker.walk(1111112)
+    walker.walk(1111113)
     walker.draw('images/homeland.png')
 
     puts 'please check images/homeland.png'
@@ -82,8 +82,8 @@ RSpec.describe Sdb::Analyzer do
   it 'handles bootsnap' do
     walker = Sdb::FrameWalker::Walker.new('./data/sdb-homeland-bootsnap.log', './data/iseqs-homeland-bootsnap.log')
     walker.walk(1111112)
-    walker.draw('images/homeland.png')
+    walker.draw('images/homeland-bootsnap.png')
 
-    puts 'please check images/homeland.png'
+    puts 'please check images/homeland-bootsnap.png'
   end
 end
