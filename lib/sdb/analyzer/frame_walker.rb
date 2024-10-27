@@ -27,6 +27,8 @@ module Sdb
     end
 
     class Walker
+      attr_accessor :methods_table
+
       def initialize(log_file, iseq_file)
         @log_file = log_file
         @iseq_file = iseq_file
@@ -128,9 +130,10 @@ module Sdb
         end
 
         frames = Sdb::Analyzer::FrameReader.read(rows)
-
+        iseqs = []
         frames.each do |frame|
           next if frame[0] != target_trace_id
+          frame.each {|method| iseqs << method}
 
           ts = frame[1]
           iseqs = frame[2..-1].reverse # root to deeptest
@@ -154,6 +157,8 @@ module Sdb
             i += 1
           end
         end
+
+        iseqs.uniq
       end
 
       private
@@ -193,11 +198,22 @@ module Sdb
 
       def read_methods
         iseq_to_method = {}
+        cfunc_first_event = nil
 
         File.new(@iseq_file).each_line do |line|
           data = JSON.parse(line)
-          addr = data['iseq_addr']
-          iseq_to_method[addr] = data['name'], data['path'], data['first_lineno'], data['debug']
+          if data['type'] == 3
+            cfunc_first_event = data
+          elsif data['type'] == 4
+            if cfunc_first_event
+              addr = data['iseq_addr']
+              iseq_to_method[addr] = cfunc_first_event['name'], cfunc_first_event['path'], cfunc_first_event['first_lineno'], cfunc_first_event['type']
+              cfunc_first_event = nil
+            end
+          else
+            addr = data['iseq_addr']
+            iseq_to_method[addr] = data['name'], data['path'], data['first_lineno'], data['type']
+          end
         end
 
         iseq_to_method
