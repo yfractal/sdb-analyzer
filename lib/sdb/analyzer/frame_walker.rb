@@ -166,6 +166,14 @@ module Sdb
         @metas.each do |meta|
           # TODO: frame's ts and meta's ts is fetched in different threads
           # they may not match exactly. So may need some buffer
+          if frame.trace_id == meta[:trace_id] && (frame.ts < meta[:start_ts] || frame.ts + frame.duration > meta[:end_ts])
+            diff0 = (meta[:start_ts] - frame.ts) / 1_000_000
+            puts "frame sratrted #{diff0} seconds before puma record"
+
+            diff1 = (frame.ts + frame.duration - meta[:end_ts]) / 1_000_000
+            puts "frame ended #{diff1} seconds after puma record"
+          end
+
           if frame.trace_id == meta[:trace_id] && frame.ts >= meta[:start_ts] && frame.ts + frame.duration <= meta[:end_ts]
             return meta
           end
