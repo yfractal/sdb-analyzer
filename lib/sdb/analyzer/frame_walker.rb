@@ -38,6 +38,26 @@ module Sdb
         @metas = []
       end
 
+      def stack_depth
+        @depth = []
+        @roots.each do |frame|
+          frame_stack_depth(frame, 0)
+        end
+
+        puts @depth.sum / @depth.count.to_f
+      end
+
+      def frame_stack_depth(frame, depth)
+        if frame.children.count == 0
+          @depth << depth
+          puts "depth=#{depth}"
+        else
+          frame.children.each do |child|
+            frame_stack_depth(child, depth + 1)
+          end
+        end
+      end
+
       def draw(name)
         graph = GraphViz.new( :G, :type => :digraph )
         graph[:bgcolor] = '#253238'

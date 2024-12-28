@@ -93,4 +93,10 @@ RSpec.describe Sdb::Analyzer do
     walker.draw('images/homeland-with-cfunc.png')
     puts 'please check images/homeland-with-cfunc.png'
   end
+
+  it 'gets stack depth' do
+    walker = Sdb::FrameWalker::Walker.new('./data/sdb-cfunc.log', './data/iseqs-cfunc.log')
+    walker.walk(1111112)
+    walker.stack_depth
+  end
 end
