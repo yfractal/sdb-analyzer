@@ -7,6 +7,7 @@ require_relative "analyzer/frame_walker"
 require_relative "analyzer/puma"
 require_relative "analyzer/reader"
 require_relative "analyzer/helper"
+require_relative "analyzer/symbols_table"
 
 module Sdb
   module Analyzer
