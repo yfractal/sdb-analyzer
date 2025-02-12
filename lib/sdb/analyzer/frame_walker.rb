@@ -152,13 +152,17 @@ module Sdb
             data = JSON.parse(raw_data)
 
             rows << data
+          elsif line.include?("[time]")
+            # suppose only one time line
+            @time_converter = Sdb::Analyzer::TimeConverter.from_log(line)
           end
         end
 
         frames = Sdb::Analyzer::FrameReader.read(rows)
         iseqs = [] # not need this ..
         frames.each do |frame|
-          next if frame[0] != target_trace_id
+          # user program may not set target_trace_id, so we need to walk all frames
+          next if frame[0] != target_trace_id && target_trace_id != nil
           frame.each {|method| iseqs << method}
 
           ts = frame[1]

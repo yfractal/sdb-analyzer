@@ -8,10 +8,10 @@ require_relative "analyzer/puma"
 require_relative "analyzer/reader"
 require_relative "analyzer/helper"
 require_relative "analyzer/symbols_table"
+require_relative "analyzer/time_converter"
 
 module Sdb
   module Analyzer
     class Error < StandardError; end
-    # Your code goes here...
   end
 end

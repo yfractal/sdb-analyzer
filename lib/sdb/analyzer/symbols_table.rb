@@ -62,7 +62,7 @@ module Sdb
             addr = data['iseq_addr']
             # TODO fix me
             if addr == 0
-              puts "addr is 0, data=#{data}"
+              # puts "addr is 0, data=#{data}"
               next
             end
 
