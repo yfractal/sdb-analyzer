@@ -10,9 +10,16 @@ module Sdb
       class Frame
         attr_reader :trace_id, :ts, :iseqs
 
-        def initialize(raw_frame)
-          @trace_id, @ts, _ = raw_frame
-          @iseqs = raw_frame[2..]
+        def self.from_raw(raw_frame)
+          trace_id, ts, _ = raw_frame
+          iseqs = raw_frame[2..].reverse # root to deepest
+          self.new(trace_id, ts, iseqs)
+        end
+
+        def initialize(trace_id, ts, iseqs)
+          @trace_id = trace_id
+          @ts = ts
+          @iseqs = iseqs
         end
       end
 
@@ -51,7 +58,7 @@ module Sdb
 
         def read_v2(data)
           raw_frames = self.read(data)
-          raw_frames.map { |raw_frame| Frame.new(raw_frame) }
+          raw_frames.map { |raw_frame| Frame.from_raw(raw_frame) }
         end
 
         private
