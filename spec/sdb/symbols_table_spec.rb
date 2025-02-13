@@ -6,7 +6,7 @@ RSpec.describe Sdb::Analyzer::SymbolsTable do
 
   describe '#read' do
     it 'reads symbols' do
-      expect(@symbols[281473520570960][0]).to eq(["fffffff", "some-path", 35, 0, 0, 8126901797125])
+      expect(@symbols[281473520570960][0]).to eq([281473520570960, "fffffff", "some-path", 35, 0, 0, 8126901797125])
     end
 
     it 'reads move events' do
@@ -25,7 +25,7 @@ RSpec.describe Sdb::Analyzer::SymbolsTable do
       # addr = 281472935568280
       # [["<top (required)>", "/root/.rbenv/versions/3.1.5/lib/ruby/3.1.0/rubygems/errors.rb", 0, 0, 0, 8126494524917], ["sanitize_string", "/root/.rbenv/versions/3.1.5/lib/ruby/3.1.0/rubygems/specification.rb", 1496, 0, 0, 8126504728750]]
       iseq = @symbols_table.iseq(281472935568280, 8126494524918)
-      expect(iseq).to eq ["<top (required)>", "/root/.rbenv/versions/3.1.5/lib/ruby/3.1.0/rubygems/errors.rb", 0, 0, 0, 8126494524917]
+      expect(iseq).to eq [281472935568280, "<top (required)>", "/root/.rbenv/versions/3.1.5/lib/ruby/3.1.0/rubygems/errors.rb", 0, 0, 0, 8126494524917]
     end
 
     it 'returns 0 if no such addr' do

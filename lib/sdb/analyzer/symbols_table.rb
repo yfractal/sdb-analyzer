@@ -54,7 +54,7 @@ module Sdb
 
               ts = data['ts']
               @iseq_to_method[addr] ||= []
-              @iseq_to_method[addr] << [cfunc_first_event['name'], module_name, cfunc_first_event['first_lineno'], cfunc_first_event['type'], data['type'], data['ts']]
+              @iseq_to_method[addr] << [addr, cfunc_first_event['name'], module_name, cfunc_first_event['first_lineno'], cfunc_first_event['type'], data['type'], data['ts']]
               @iseq_to_method[addr].sort_by! { |iseq| iseq[-1] }
               cfunc_first_event = nil
             end
@@ -69,7 +69,7 @@ module Sdb
             ts = data['ts']
 
             @iseq_to_method[addr] ||= []
-            @iseq_to_method[addr] << [data['name'], data['path'], data['first_lineno'], data['type'], data['type'], ts]
+            @iseq_to_method[addr] << [addr, data['name'], data['path'], data['first_lineno'], data['type'], data['type'], ts]
             @iseq_to_method[addr].sort_by! { |iseq| iseq[-1] }
           else
             from_addr, to_addr, ts = data['iseq_addr'], data['to_addr'], data['ts']

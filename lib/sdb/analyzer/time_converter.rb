@@ -21,6 +21,10 @@ module Sdb
       def uptime_to_clock_time(uptime)
         uptime - @base_uptime + @base_clock_time
       end
+
+      def clock_time_to_uptime(clock_time)
+        clock_time - @base_clock_time + @base_uptime
+      end
     end
   end
 end
