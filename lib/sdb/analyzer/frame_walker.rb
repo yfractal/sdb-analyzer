@@ -106,7 +106,7 @@ module Sdb
           meta[:captured_duration_count] += 1
         end
 
-        method, file, line_no = @methods_table[frame.iseq]
+        method, file, line_no = @symbols_table.iseq(frame.iseq, frame.ts)
         if method == nil
           meta[:no_symobls_count] += 1
         end
