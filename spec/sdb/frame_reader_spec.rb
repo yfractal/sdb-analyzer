@@ -59,5 +59,29 @@ RSpec.describe Sdb::Analyzer::FrameReader do
         expect(frames).to eq [[1], [2]]
       end
     end
+
+    describe 'it reads frame log into frame object' do
+      it 'reads single frame' do
+        data = [
+          [1, 2, 18446744073709551615, 18446744073709551615]
+        ]
+
+        frames = Sdb::Analyzer::FrameReader.read(data)
+
+        expect(frames).to eq [[1, 2]]
+      end
+
+      it 'reads 2 frames' do
+        data = [
+          [0, 1739367653956162, 281473714183720, 281473714361760, 18446744073709551615, 18446744073709551615]
+        ]
+
+        frames = Sdb::Analyzer::FrameReader.read_v2(data)
+
+        expect(frames[0].trace_id).to eq 0
+        expect(frames[0].ts).to eq 1739367653956162
+        expect(frames[0].iseqs).to eq [281473714183720, 281473714361760]
+      end
+    end
   end
 end
