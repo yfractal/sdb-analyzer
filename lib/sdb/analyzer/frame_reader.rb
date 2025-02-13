@@ -2,8 +2,19 @@
 
 module Sdb
   module Analyzer
+    # SDB writes frames in batch, one log line contains multiple frames
+    # FrameReader is used for separating one log line into multiple frames
     class FrameReader
       SEPARATOR = 18446744073709551615
+
+      class Frame
+        attr_reader :trace_id, :ts, :iseqs
+
+        def initialize(raw_frame)
+          @trace_id, @ts, _ = raw_frame
+          @iseqs = raw_frame[2..]
+        end
+      end
 
       class << self
         def read(data)
@@ -36,6 +47,11 @@ module Sdb
           end
 
           frames
+        end
+
+        def read_v2(data)
+          raw_frames = self.read(data)
+          raw_frames.map { |raw_frame| Frame.new(raw_frame) }
         end
 
         private

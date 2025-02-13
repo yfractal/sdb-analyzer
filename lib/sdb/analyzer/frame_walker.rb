@@ -21,7 +21,7 @@ module Sdb
         @children << frame
       end
 
-      def update_ts(new_ts)
+      def update_duration(new_ts)
         @duration = new_ts - @ts
       end
     end
@@ -32,7 +32,8 @@ module Sdb
       def initialize(log_file, iseq_file)
         @log_file = log_file
         @iseq_file = iseq_file
-        @methods_table = read_methods
+        @symbols_table = Sdb::Analyzer::SymbolsTable.new(iseq_file)
+        @methods_table =  @symbols_table.read
         @roots = []
         @stack = []
         @metas = []
@@ -75,8 +76,13 @@ module Sdb
 
           draw_frame(graph, frame, meta)
 
-          controller = "#{meta[:controller_entry][:file].split('/')[-1].gsub('.rb', '').split('_').map(&:capitalize).join}##{meta[:controller_entry][:method]}"
-          label = "controller: #{controller}, status: #{meta[:status]}"
+          if meta[:controller_entry]
+            controller = "#{meta[:controller_entry][:file].split('/')[-1].gsub('.rb', '').split('_').map(&:capitalize).join}##{meta[:controller_entry][:method]}"
+            label = "controller: #{controller}, status: #{meta[:status]}"
+          else
+            label = 'dummy' # TODO: fix me
+          end
+
           graph.add_nodes("labels", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
 
           puts "meta=#{meta}"
@@ -100,7 +106,7 @@ module Sdb
           meta[:captured_duration_count] += 1
         end
 
-        method, file, line_no = @methods_table[frame.iseq]
+        method, file, line_no = @symbols_table.iseq(frame.iseq, frame.ts)
         if method == nil
           meta[:no_symobls_count] += 1
         end
@@ -134,29 +140,33 @@ module Sdb
       end
 
       def walk(target_trace_id)
+        # filter out the stack frames
         rows = []
 
         File.new(@log_file).each_line do |line|
           if line.include?("[SDB][puma-delay]")
             @metas << Analyzer::Puma.read_line(line)
-
           elsif line.include?("[stack_frames]")
             _, raw_data = line.split("[stack_frames]")
 
             data = JSON.parse(raw_data)
 
             rows << data
+          elsif line.include?("[time]")
+            # suppose only one time line
+            @time_converter = Sdb::Analyzer::TimeConverter.from_log(line)
           end
         end
 
         frames = Sdb::Analyzer::FrameReader.read(rows)
-        iseqs = []
+        iseqs = [] # not need this ..
         frames.each do |frame|
-          next if frame[0] != target_trace_id
+          # user program may not set target_trace_id, so we need to walk all frames
+          next if frame[0] != target_trace_id && target_trace_id != nil
           frame.each {|method| iseqs << method}
 
           ts = frame[1]
-          iseqs = frame[2..-1].reverse # root to deeptest
+          iseqs = frame[2..-1].reverse # root to deepest
 
           frame_diff_count = @stack.count - iseqs.count
 
@@ -169,7 +179,7 @@ module Sdb
 
           iseqs.each do |iseq|
             if on_stack?(iseq, i)
-              update_ts(i, ts)
+              update_duration(i, ts)
             else
               on_stack(frame[0], iseq, ts, i)
             end
@@ -178,7 +188,7 @@ module Sdb
           end
         end
 
-        iseqs.uniq
+        iseqs.uniq # todo: remove this line
       end
 
       private
@@ -200,9 +210,9 @@ module Sdb
         end
       end
 
-      def update_ts(i, ts)
+      def update_duration(i, ts)
         frame = @stack[i]
-        frame.update_ts(ts)
+        frame.update_duration(ts)
       end
 
       def on_stack?(iseq, i)
@@ -225,42 +235,7 @@ module Sdb
       end
 
       def read_methods
-        iseq_to_method = {}
-        cfunc_first_event = nil
 
-        module_addr_to_name = {}
-        define_module_enter = nil
-
-        File.new(@iseq_file).each_line do |line|
-          data = JSON.parse(line)
-          if data['type'] == 5
-            define_module_enter = data
-          elsif data['type'] == 6
-            if define_module_enter
-              module_addr_to_name[data['iseq_addr']] = {
-                :name => define_module_enter['name'],
-                :addr => data['iseq_addr']
-              }
-
-              define_module_enter = nil
-            end
-          elsif data['type'] == 3
-            cfunc_first_event = data
-          elsif data['type'] == 4
-            if cfunc_first_event
-              module_addr = cfunc_first_event['iseq_addr']
-              module_name = module_addr_to_name[module_addr]
-              addr = data['iseq_addr']
-              iseq_to_method[addr] = cfunc_first_event['name'], module_name, cfunc_first_event['first_lineno'], cfunc_first_event['type']
-              cfunc_first_event = nil
-            end
-          else
-            addr = data['iseq_addr']
-            iseq_to_method[addr] = data['name'], data['path'], data['first_lineno'], data['type']
-          end
-        end
-
-        iseq_to_method
       end
     end
   end
