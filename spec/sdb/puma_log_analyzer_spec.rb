@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-RSpec.describe Sdb::Analyzer::Puma do
-  let (:analyzer) { Sdb::Analyzer::Puma.new('./data/puma.log') }
+RSpec.describe Sdb::Analyzer::PumaLogAnalyzer do
+  let (:analyzer) { Sdb::Analyzer::PumaLogAnalyzer.new('./data/puma.log') }
   it 'reads log into data' do
     data = analyzer.read
 
-    expect(data[0][:trace_id]).to eq '1111111'
+    expect(data[0][:trace_id]).to eq 1111111
     expect(data[0][:delay]).to eq 120.947
   end
 

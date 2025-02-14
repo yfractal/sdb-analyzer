@@ -145,7 +145,7 @@ module Sdb
 
         File.new(@log_file).each_line do |line|
           if line.include?("[SDB][puma-delay]")
-            @metas << Analyzer::Puma.read_line(line)
+            @metas << Analyzer::PumaLogAnalyzer.read_line(line)
           elsif line.include?("[stack_frames]")
             _, raw_data = line.split("[stack_frames]")
 

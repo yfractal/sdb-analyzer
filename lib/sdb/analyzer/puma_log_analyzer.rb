@@ -2,7 +2,7 @@
 
 module Sdb
   module Analyzer
-    class Puma
+    class PumaLogAnalyzer
       class << self
         def read_line(line)
           content = line.split('[SDB][puma-delay]:')[-1].strip
