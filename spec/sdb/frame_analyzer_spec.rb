@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Sdb::Analyzer::FrameWalker2 do
+RSpec.describe Sdb::Analyzer::FrameAnalyzer do
   it 'builds simple call graph' do
     frame1 = Sdb::Analyzer::FrameReader::Frame.new(0, 0, [11, 22, 33])
     frame2 = Sdb::Analyzer::FrameReader::Frame.new(0, 10, [11, 22, 33])

@@ -4,8 +4,8 @@ require 'json'
 
 module Sdb
   module Analyzer
-    # FrameWalker2 is for converting frames to call-graph
-    class FrameWalker2
+    # FrameAnalyzer is for converting frames to call-graph
+    class FrameAnalyzer
       class IseqNode
         attr_writer :parent
         attr_reader :children, :duration, :iseq, :parent
