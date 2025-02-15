@@ -4,6 +4,19 @@ module Sdb
   module Analyzer
     class PumaLogAnalyzer
       class << self
+        def from_log(log)
+          data = []
+          File.new(log).each_line do |line|
+            if line.include? '[SDB][puma-delay]'
+              data << self.read_line(line)
+            end
+          end
+
+          self.new(data)
+        end
+
+        private
+
         def read_line(line)
           content = line.split('[SDB][puma-delay]:')[-1].strip
           content.split(', ').map do |pair|
@@ -26,8 +39,10 @@ module Sdb
         end
       end
 
-      def initialize(log)
-        @log = log
+      attr_accessor :data
+
+      def initialize(data)
+        @data = data
       end
 
       def read
@@ -41,33 +56,28 @@ module Sdb
         data
       end
 
-      def statistic(data)
+      def statistic
         {
           total: data.count,
-          avg: average_delay(data),
-          cpu_time_avg: average_delay(data, :cpu_time),
-          p50: p_x(50, data, :delay),
-          cpu_time_p50: p_x(50, data, :cpu_time),
-          p90: p_x(90, data, :delay),
-          cpu_time_p90: p_x(90, data, :cpu_time),
-          p99: p_x(99, data, :delay),
-          cpu_time_p99: p_x(99, data, :cpu_time),
+          avg: average_delay,
+          cpu_time_avg: average_delay(:cpu_time),
+          p50: p_x(50, :delay),
+          cpu_time_p50: p_x(50, :cpu_time),
+          p90: p_x(90, :delay),
+          cpu_time_p90: p_x(90, :cpu_time),
+          p99: p_x(99, :delay),
+          cpu_time_p99: p_x(99, :cpu_time),
         }
       end
 
       private
 
-      def average_delay(data, type = :delay)
-        if type == :delay
-          times = data.map {|d| d[:delay]}
-          times.sum.to_f / times.count
-        elsif type == :cpu_time
-          times = data.map {|d| d[:cpu_time]}
-          times.sum.to_f / times.count
-        end
+      def average_delay(field = :delay)
+        times = data.map {|d| d[field]}
+        times.sum.to_f / times.count
       end
 
-      def p_x(percentage, data, field)
+      def p_x(percentage, field)
         numbers = data.map{|d| d[field]}
         p_x_helper(percentage, numbers)
       end
