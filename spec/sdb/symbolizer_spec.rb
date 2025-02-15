@@ -5,7 +5,6 @@ RSpec.describe Sdb::Analyzer::Symbolizer do
     @symbol_table = Sdb::Analyzer::SymbolsTable.new('./spec/data/symbols_gc_compact.log')
     @symbol_table.read
     @symbolizer = described_class.new(@symbol_table, @time_converter)
-
   end
 
   it 'translates iseqs' do

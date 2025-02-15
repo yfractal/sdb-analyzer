@@ -11,6 +11,7 @@ require_relative "analyzer/helper"
 require_relative "analyzer/symbols_table"
 require_relative "analyzer/time_converter"
 require_relative "analyzer/symbolizer"
+require_relative "analyzer/presenters/image_presenter"
 
 module Sdb
   module Analyzer
