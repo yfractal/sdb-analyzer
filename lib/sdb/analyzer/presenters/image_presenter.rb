@@ -13,13 +13,15 @@ module Sdb
 
           @total = @frame_analyzer.roots.map {|root| root.duration }.sum.to_f
 
+          @fake_generation = 0
+
           @frame_analyzer.roots.each do |root|
             graph[:bgcolor] = '#253238'
             meta = {}
             meta[:frame_count] = 0
             meta[:iseqs_count] = 0
             meta[:c_iseqs_count] = 0
-            meta[:no_symobls_count] = 0
+            meta[:no_symbols_count] = 0
             meta[:duration] = root.duration
             meta[:captured_duration_count] = 0
 
@@ -27,6 +29,8 @@ module Sdb
           end
 
           graph.output( :png => file_name )
+
+          graph
         end
 
         def render_iseq_node(graph, iseq_node, meta)
@@ -39,7 +43,7 @@ module Sdb
           _, method, file, line_no = @symbolizer.translate_iseq(iseq_node)
 
           if method == nil
-            meta[:no_symobls_count] += 1
+            meta[:no_symbols_count] += 1
             method = iseq_node.iseq.to_s
           end
 
@@ -52,8 +56,9 @@ module Sdb
             label = "#{method}(#{file}:#{line_no})"
           end
   
-          node = graph.add_nodes(iseq_node.iseq.to_s + "-#{@fake_generation}", label: label, color: '#2e95d3', fontcolor: '#2e95d3')          
+          node = graph.add_nodes(iseq_node.iseq.to_s + "-#{@fake_generation}", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
 
+          @fake_generation += 1
           iseq_node.children.each do |child|
             duration = child.duration
             byebug if duration == nil || @total == nil
