@@ -33,6 +33,7 @@ module Sdb
       end
 
       attr_reader :roots
+
       def initialize(frames)
         @frames = frames
         @stack = []
