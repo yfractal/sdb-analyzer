@@ -1,7 +1,7 @@
 RSpec.describe Sdb::Analyzer::SymbolsTable do
   before do
-    @symbols_table = described_class.new('./spec/data/symbols_table.log')
-    @symbols = @symbols_table.read
+    @symbols_table = described_class.from_log('./spec/data/symbols_table.log')
+    @symbols = @symbols_table.iseq_to_method
   end
 
   describe '#read' do
