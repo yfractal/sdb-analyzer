@@ -4,8 +4,8 @@ module Sdb
   module Analyzer
     module Presenters
       class ImagePresenter
-        def initialize(frame_analyzer, puma_log_analyzer, symbolizer)
-          @frame_analyzer, @puma_log_analyzer, @symbolizer = frame_analyzer, puma_log_analyzer, symbolizer
+        def initialize(frame_analyzer, puma_log_analyzer)
+          @frame_analyzer, @puma_log_analyzer = frame_analyzer, puma_log_analyzer
         end
 
         def render(file_name)
@@ -40,11 +40,11 @@ module Sdb
             meta[:frame_count] += 1
           end
 
-          _, method, file, line_no = @symbolizer.translate_iseq(iseq_node)
+          method, file, line_no = iseq_node.iseq.name, iseq_node.iseq.path_or_module, iseq_node.iseq.first_lineno
 
           if method == nil
             meta[:no_symbols_count] += 1
-            method = iseq_node.iseq.to_s
+            method = iseq_node.iseq.addr.to_s
           end
 
           file ||= ""
@@ -55,7 +55,7 @@ module Sdb
           else
             label = "#{method}(#{file}:#{line_no})"
           end
-  
+
           node = graph.add_nodes(iseq_node.iseq.to_s + "-#{@fake_generation}", label: label, color: '#2e95d3', fontcolor: '#2e95d3')
 
           @fake_generation += 1
