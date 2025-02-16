@@ -70,7 +70,7 @@ module Sdb
           meta[:frame_count] = 0
           meta[:iseqs_count] = 0
           meta[:c_iseqs_count] = 0
-          meta[:no_symobls_count] = 0
+          meta[:no_symbols_count] = 0
           meta[:duration] = frame.duration
           meta[:captured_duration_count] = 0
 
@@ -108,7 +108,7 @@ module Sdb
 
         method, file, line_no = @symbols_table.iseq(frame.iseq, frame.ts)
         if method == nil
-          meta[:no_symobls_count] += 1
+          meta[:no_symbols_count] += 1
         end
 
         if file == nil
@@ -145,7 +145,7 @@ module Sdb
 
         File.new(@log_file).each_line do |line|
           if line.include?("[SDB][puma-delay]")
-            @metas << Analyzer::Puma.read_line(line)
+            @metas << Analyzer::PumaLogAnalyzer.read_line(line)
           elsif line.include?("[stack_frames]")
             _, raw_data = line.split("[stack_frames]")
 

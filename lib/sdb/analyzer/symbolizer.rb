@@ -6,6 +6,12 @@ module Sdb
         @time_converter = time_converter
       end
 
+      def translate_iseq(iseq_node)
+        ts = @time_converter.clock_time_to_uptime(iseq_node.ts)
+
+        @symbol_table.iseq(iseq_node.iseq, ts)
+      end
+
       def translate(frame)
         iseqs = frame.iseqs
         ts = @time_converter.clock_time_to_uptime(frame.ts)

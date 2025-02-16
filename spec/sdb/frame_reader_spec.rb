@@ -80,7 +80,7 @@ RSpec.describe Sdb::Analyzer::FrameReader do
 
         expect(frames[0].trace_id).to eq 0
         expect(frames[0].ts).to eq 1739367653956162
-        expect(frames[0].iseqs).to eq [281473714183720, 281473714361760]
+        expect(frames[0].iseqs).to eq [281473714361760, 281473714183720]
       end
     end
   end
