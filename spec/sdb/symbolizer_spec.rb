@@ -2,8 +2,7 @@ RSpec.describe Sdb::Analyzer::Symbolizer do
   before do
     @log_line = '2025-02-13 01:45:28.279442089 [INFO] [time] uptime=584000000, clock_time=1739411128279420'
     @time_converter = Sdb::Analyzer::TimeConverter.from_log(@log_line)
-    @symbol_table = Sdb::Analyzer::SymbolsTable.new('./spec/data/symbols_gc_compact.log')
-    @symbol_table.read
+    @symbol_table = Sdb::Analyzer::SymbolsTable.from_log('./spec/data/symbols_gc_compact.log')
     @symbolizer = described_class.new(@symbol_table, @time_converter)
   end
 
@@ -13,13 +12,12 @@ RSpec.describe Sdb::Analyzer::Symbolizer do
     ]
 
     frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
-    rv = @symbolizer.translate(frames[0])
+    iseq = @symbolizer.translate(frames[0])[5]
 
     # {"ts": 583433152, "ts_ns": 583433152598, "first_lineno": 25, "name": "fffffff", "path": "\u0005(\ufffd ", "iseq_addr": 281473431722880, "to_addr": 0, "type": 0}
-    func = rv[5]
-    expect(func[0]).to eq 281473431722880
-    expect(func[1]).to eq 'fffffff'
-    expect(func[-1]).to eq 583433152
+    expect(iseq.addr).to eq 281473431722880
+    expect(iseq.name).to eq 'fffffff'
+    expect(iseq.ts).to eq 583433152
   end
 
   it 'translates the iseq after gc compact happened' do
@@ -32,11 +30,10 @@ RSpec.describe Sdb::Analyzer::Symbolizer do
     ]
 
     frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
-    rv = @symbolizer.translate(frames[0])
-    func = rv[5]
+    iseq = @symbolizer.translate(frames[0])[5]
 
-    expect(func[0]).to eq 281473431722880 # the new address
-    expect(func[1]).to eq 'fffffff'
-    expect(func[-1]).to eq 585125840 # the new ts
+    expect(iseq.addr).to eq 281473432083760 # the new address
+    expect(iseq.name).to eq 'fffffff'
+    expect(iseq.ts).to eq 585125840 # the new ts
   end
 end

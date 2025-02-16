@@ -10,8 +10,7 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
   it 'raw graph' do
     @log_line = '2025-02-13 01:45:28.279442089 [INFO] [time] uptime=584000000, clock_time=1739411128279420'
     @time_converter = Sdb::Analyzer::TimeConverter.from_log(@log_line)
-    @symbol_table = Sdb::Analyzer::SymbolsTable.new('./spec/data/symbols_gc_compact.log')
-    @symbol_table.read
+    @symbol_table = Sdb::Analyzer::SymbolsTable.from_log('./spec/data/symbols_gc_compact.log')
 
     symbolizer = Sdb::Analyzer::Symbolizer.new(@symbol_table, @time_converter)
 
@@ -21,12 +20,12 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
     ]
 
     frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
-    frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames)
+    frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, symbolizer)
     frame_analyzer.walk
 
     puma_log_analyzer = nil
 
-    presenter = described_class.new(frame_analyzer, puma_log_analyzer, symbolizer)
+    presenter = described_class.new(frame_analyzer, puma_log_analyzer)
     graph = presenter.render('tmp.png')
     puts 'You could check the generated image tmp.png too.'
 

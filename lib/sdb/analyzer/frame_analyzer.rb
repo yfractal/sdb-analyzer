@@ -10,7 +10,8 @@ module Sdb
         attr_writer :parent
         attr_reader :children, :duration, :iseq, :parent
 
-        # frame is FrameWalker::Frame
+        # iseq: SymbolsTable::Iseq
+        # frame: FrameWalker::Frame
         def initialize(iseq, frame)
           @iseq     = iseq
           @frame    = frame
@@ -33,8 +34,10 @@ module Sdb
       end
 
       attr_reader :roots
-      def initialize(frames)
+
+      def initialize(frames, symbolizer)
         @frames = frames
+        @symbolizer = symbolizer
         @stack = []
         @roots = []
       end
@@ -54,10 +57,10 @@ module Sdb
           i = 0
 
           iseqs.each do |iseq|
-            if on_stack?(iseq, i)
+            if on_stack?(iseq, i, ts)
               update_duration(i, ts)
             else
-              push_on_stack(frame, iseq, i)
+              push_on_stack(frame, i)
             end
 
             i += 1
@@ -67,15 +70,22 @@ module Sdb
 
       private
 
-      def on_stack?(iseq, i)
-        @stack[i] && @stack[i].iseq == iseq
+      def on_stack?(iseq_addr, i, ts)
+        iseq = find_iseq(iseq_addr, ts)
+        return false unless @stack[i]
+
+        same_func?(@stack[i].iseq, iseq)
       end
 
       def update_duration(i, ts)
         @stack[i].update_duration(ts)
       end
 
-      def push_on_stack(frame, iseq, i)
+      def push_on_stack(frame, i)
+        iseq_addr = frame.iseqs[i]
+        # addr, ts, type, name, path_or_module, first_lineno, source
+        iseq = find_iseq(iseq_addr, frame.ts)
+
         node = IseqNode.new(iseq, frame)
 
         if i == 0
@@ -89,6 +99,18 @@ module Sdb
           node.parent = pre_iseq_node
           pre_iseq_node.add_child(node)
         end
+      end
+
+      def find_iseq(iseq_addr, ts)
+        @symbolizer.iseq(iseq_addr, ts) ||
+          SymbolsTable::Iseq.new_method(iseq_addr, ts, :nil, nil, nil, 0, nil) # a dummy iseq when it doesn't exist in SymbolsTable
+      end
+
+      def same_func?(iseq0, iseq1)
+        @symbolizer.same_func?(iseq0, iseq1) ||
+          # both iseq doesn't have symbols info, so compare address only
+          # TODO: handle memory movement
+          iseq0.type == :nil && iseq0.type == :nil && iseq0.addr == iseq1.addr
       end
     end
   end
