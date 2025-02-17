@@ -11,7 +11,7 @@ RSpec.describe Sdb::Analyzer::TimeConverter do
     # time line '2025-02-12 13:40:53.956155043 [INFO] [time] uptime=68385000000, clock_time=1739367653956148'
     # 
     line = '2025-02-12 13:40:53.956155043 [INFO] [time] uptime=68385000000, clock_time=1739367653956148'
-    time_converter = Sdb::Analyzer::TimeConverter.from_log(line)
+    time_converter = Sdb::Analyzer::TimeConverter.from_log_line(line)
 
     symbol_creation_time = time_converter.uptime_to_clock_time(68384399968)
     expect(symbol_creation_time).to eq 1739367653356116

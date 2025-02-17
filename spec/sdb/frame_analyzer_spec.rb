@@ -14,7 +14,7 @@ RSpec.describe Sdb::Analyzer::FrameAnalyzer do
       symbols_data.each { |d| table.read_line(d) }
 
       log_line = '2025-02-13 01:45:28.279442089 [INFO] [time] uptime=0, clock_time=0'
-      time_converter = Sdb::Analyzer::TimeConverter.from_log(log_line)
+      time_converter = Sdb::Analyzer::TimeConverter.from_log_line(log_line)
 
       Sdb::Analyzer::Symbolizer.new(table, time_converter)
     end

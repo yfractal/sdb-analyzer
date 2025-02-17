@@ -3,7 +3,7 @@ require 'json'
 module Sdb
   module Analyzer
     class TimeConverter
-      def self.from_log(line)
+      def self.from_log_line(line)
         # line example '2025-02-12 13:40:53.956155043 [INFO] [time] uptime=68385000000000, clock_time=1739367653956148'
         match_data = line.match(/uptime=(\d+), clock_time=(\d+)/)
         uptime = match_data[1].to_i

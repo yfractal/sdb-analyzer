@@ -9,7 +9,7 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
 
   it 'raw graph' do
     @log_line = '2025-02-13 01:45:28.279442089 [INFO] [time] uptime=584000000, clock_time=1739411128279420'
-    @time_converter = Sdb::Analyzer::TimeConverter.from_log(@log_line)
+    @time_converter = Sdb::Analyzer::TimeConverter.from_log_line(@log_line)
     @symbol_table = Sdb::Analyzer::SymbolsTable.from_log('./spec/data/symbols_gc_compact.log')
 
     symbolizer = Sdb::Analyzer::Symbolizer.new(@symbol_table, @time_converter)
