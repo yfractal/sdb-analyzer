@@ -4,8 +4,8 @@ module Sdb
   module Analyzer
     module Presenters
       class ImagePresenter
-        def initialize(frame_analyzer, puma_log_analyzer)
-          @frame_analyzer, @puma_log_analyzer = frame_analyzer, puma_log_analyzer
+        def initialize(frame_analyzer)
+          @frame_analyzer = frame_analyzer
         end
 
         def render(file_name)

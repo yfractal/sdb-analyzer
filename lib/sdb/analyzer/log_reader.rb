@@ -5,7 +5,7 @@ require 'json'
 module Sdb
   module Analyzer
     class LogReader
-      def self.read_sdb_log(log)
+      def self.read_sdb_log(log, trace_id = nil)
         time_converter = nil
         raw_frames = []
 
@@ -14,6 +14,7 @@ module Sdb
             time_converter = Sdb::Analyzer::TimeConverter.from_log_line(line)
           elsif line.include?('[stack_frames]')
             _, raw_data = line.split('[stack_frames]')
+
             raw_frames << JSON.parse(raw_data)
           else
             puts "unexpected line #{line}"
@@ -21,6 +22,10 @@ module Sdb
         end
 
         frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
+
+        if trace_id
+          frames = frames.select { |frame| frame.trace_id == trace_id }
+        end
 
         [time_converter, frames]
       end
