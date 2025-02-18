@@ -154,7 +154,7 @@ module Sdb
             rows << data
           elsif line.include?("[time]")
             # suppose only one time line
-            @time_converter = Sdb::Analyzer::TimeConverter.from_log(line)
+            @time_converter = Sdb::Analyzer::TimeConverter.from_log_line_line(line)
           end
         end
 

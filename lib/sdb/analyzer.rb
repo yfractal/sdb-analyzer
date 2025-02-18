@@ -12,6 +12,7 @@ require_relative "analyzer/symbols_table"
 require_relative "analyzer/time_converter"
 require_relative "analyzer/symbolizer"
 require_relative "analyzer/presenters/image_presenter"
+require_relative "analyzer/log_reader"
 
 module Sdb
   module Analyzer

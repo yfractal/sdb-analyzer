@@ -42,7 +42,7 @@ module Sdb
                 frames << frame
                 frame = []
 
-                # current, seperator, seperator, next
+                # current, separator, separator, next
                 j += 3
               else
                 frame << current_row[j]

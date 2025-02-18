@@ -1,0 +1,68 @@
+Puma starting in single mode...
+* Puma version: 6.4.2 (ruby 3.1.5-p252) ("The Eagle of Durango")
+*  Min threads: 2
+*  Max threads: 2
+*  Environment: production
+*          PID: 65
+* Listening on http://0.0.0.0:3000
+Use Ctrl-C to stop
+I, [2025-02-17T03:18:15.376154 #65]  INFO -- : [5316b9d8-3d59-47f7-8eca-606ce444db3c] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:15 +0000
+I, [2025-02-17T03:18:15.376567 #65]  INFO -- : [5316b9d8-3d59-47f7-8eca-606ce444db3c] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:15.737568 #65]  INFO -- : [5316b9d8-3d59-47f7-8eca-606ce444db3c] Completed 200 OK in 360ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.1ms)
+I, [2025-02-17T03:18:15.739369 #65]  INFO -- : [SDB][puma-delay]: trace_id=10000, thread_id=70, remote_port=40746, start_ts=1739762295375508.5, end_ts=1739762295738892.8, delay=363.384167 ms, cpu_time=122.32361499999999 ms, status=200
+I, [2025-02-17T03:18:15.742552 #65]  INFO -- : [d86ebed4-6521-4514-a54b-0d3bc96d8676] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:15 +0000
+I, [2025-02-17T03:18:15.743605 #65]  INFO -- : [d86ebed4-6521-4514-a54b-0d3bc96d8676] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:16.018152 #65]  INFO -- : [d86ebed4-6521-4514-a54b-0d3bc96d8676] Completed 200 OK in 274ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:16.019303 #65]  INFO -- : [SDB][puma-delay]: trace_id=10001, thread_id=71, remote_port=40758, start_ts=1739762295741255.5, end_ts=1.739762296019185e+15, delay=277.929583 ms, cpu_time=25.075074999999725 ms, status=200
+I, [2025-02-17T03:18:16.021906 #65]  INFO -- : [49371fbb-eb33-480b-bffa-91edbf4b99f1] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:16 +0000
+I, [2025-02-17T03:18:16.023152 #65]  INFO -- : [49371fbb-eb33-480b-bffa-91edbf4b99f1] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:16.306005 #65]  INFO -- : [49371fbb-eb33-480b-bffa-91edbf4b99f1] Completed 200 OK in 282ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:16.307669 #65]  INFO -- : [SDB][puma-delay]: trace_id=10002, thread_id=70, remote_port=40770, start_ts=1739762296021237.8, end_ts=1739762296307469.5, delay=286.231834 ms, cpu_time=22.235913000000274 ms, status=200
+I, [2025-02-17T03:18:16.312651 #65]  INFO -- : [66340860-24a7-4387-b8ff-46d6cac0d335] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:16 +0000
+I, [2025-02-17T03:18:16.314185 #65]  INFO -- : [66340860-24a7-4387-b8ff-46d6cac0d335] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:16.537243 #65]  INFO -- : [66340860-24a7-4387-b8ff-46d6cac0d335] Completed 200 OK in 223ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.8ms)
+I, [2025-02-17T03:18:16.537790 #65]  INFO -- : [SDB][puma-delay]: trace_id=10003, thread_id=70, remote_port=40778, start_ts=1.73976229631131e+15, end_ts=1.739762296537742e+15, delay=226.431833 ms, cpu_time=19.375920999999963 ms, status=200
+I, [2025-02-17T03:18:16.539416 #65]  INFO -- : [990e5b50-22ee-43e1-8bf7-c1eab266e7e2] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:16 +0000
+I, [2025-02-17T03:18:16.540166 #65]  INFO -- : [990e5b50-22ee-43e1-8bf7-c1eab266e7e2] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:16.750123 #65]  INFO -- : [990e5b50-22ee-43e1-8bf7-c1eab266e7e2] Completed 200 OK in 210ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.3ms)
+I, [2025-02-17T03:18:16.750748 #65]  INFO -- : [SDB][puma-delay]: trace_id=10004, thread_id=71, remote_port=40780, start_ts=1739762296538778.2, end_ts=1739762296750647.8, delay=211.86933299999998 ms, cpu_time=14.761249999999837 ms, status=200
+I, [2025-02-17T03:18:16.756962 #65]  INFO -- : [96338ecb-c181-4d00-ab58-6c422b805197] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:16 +0000
+I, [2025-02-17T03:18:16.758782 #65]  INFO -- : [96338ecb-c181-4d00-ab58-6c422b805197] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:16.963038 #65]  INFO -- : [96338ecb-c181-4d00-ab58-6c422b805197] Completed 200 OK in 204ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:16.964113 #65]  INFO -- : [SDB][puma-delay]: trace_id=10005, thread_id=70, remote_port=40794, start_ts=1739762296755882.2, end_ts=1739762296964031.5, delay=208.149292 ms, cpu_time=18.259209 ms, status=200
+I, [2025-02-17T03:18:16.967438 #65]  INFO -- : [29673861-f053-4a19-94c8-6dd86dcac171] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:16 +0000
+I, [2025-02-17T03:18:16.970224 #65]  INFO -- : [29673861-f053-4a19-94c8-6dd86dcac171] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:17.184710 #65]  INFO -- : [29673861-f053-4a19-94c8-6dd86dcac171] Completed 200 OK in 214ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:17.185543 #65]  INFO -- : [SDB][puma-delay]: trace_id=10006, thread_id=71, remote_port=40810, start_ts=1739762296965781.8, end_ts=1739762297185448.5, delay=219.66666600000002 ms, cpu_time=23.479040999999867 ms, status=200
+I, [2025-02-17T03:18:17.187338 #65]  INFO -- : [3ad73fab-5d21-4316-8d9e-86bc4959ed97] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:17 +0000
+I, [2025-02-17T03:18:17.187989 #65]  INFO -- : [3ad73fab-5d21-4316-8d9e-86bc4959ed97] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:17.403621 #65]  INFO -- : [3ad73fab-5d21-4316-8d9e-86bc4959ed97] Completed 200 OK in 214ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 1.5ms)
+I, [2025-02-17T03:18:17.405000 #65]  INFO -- : [SDB][puma-delay]: trace_id=10007, thread_id=70, remote_port=40816, start_ts=1.739762297186699e+15, end_ts=1739762297404890.5, delay=218.191708 ms, cpu_time=21.320545000000024 ms, status=200
+I, [2025-02-17T03:18:17.408331 #65]  INFO -- : [30946202-8ba5-4f2e-8360-3504fbbeaa3b] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:17 +0000
+I, [2025-02-17T03:18:17.409668 #65]  INFO -- : [30946202-8ba5-4f2e-8360-3504fbbeaa3b] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:17.617723 #65]  INFO -- : [30946202-8ba5-4f2e-8360-3504fbbeaa3b] Completed 200 OK in 208ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.5ms)
+I, [2025-02-17T03:18:17.618314 #65]  INFO -- : [SDB][puma-delay]: trace_id=10008, thread_id=71, remote_port=40822, start_ts=1739762297406916.2, end_ts=1739762297618259.5, delay=211.343251 ms, cpu_time=17.758037000000115 ms, status=200
+I, [2025-02-17T03:18:17.620394 #65]  INFO -- : [9b8de7dd-7802-4af4-86bf-e2acf88358c8] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:17 +0000
+I, [2025-02-17T03:18:17.621329 #65]  INFO -- : [9b8de7dd-7802-4af4-86bf-e2acf88358c8] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:17.830479 #65]  INFO -- : [9b8de7dd-7802-4af4-86bf-e2acf88358c8] Completed 200 OK in 209ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:17.830974 #65]  INFO -- : [SDB][puma-delay]: trace_id=10009, thread_id=70, remote_port=40830, start_ts=1.739762297619802e+15, end_ts=1739762297830927.2, delay=211.125125 ms, cpu_time=20.105284000000445 ms, status=200
+I, [2025-02-17T03:18:17.834014 #65]  INFO -- : [6487e7dc-26f1-44dd-9d0e-23d558db2d7b] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:17 +0000
+I, [2025-02-17T03:18:17.836246 #65]  INFO -- : [6487e7dc-26f1-44dd-9d0e-23d558db2d7b] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:18.038665 #65]  INFO -- : [6487e7dc-26f1-44dd-9d0e-23d558db2d7b] Completed 200 OK in 202ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:18.039549 #65]  INFO -- : [SDB][puma-delay]: trace_id=10010, thread_id=71, remote_port=40836, start_ts=1739762297832010.8, end_ts=1739762298039501.8, delay=207.49075 ms, cpu_time=19.80454300000023 ms, status=200
+I, [2025-02-17T03:18:18.040689 #65]  INFO -- : [7f837069-18f8-4b7c-a940-a85e40faee09] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:18 +0000
+I, [2025-02-17T03:18:18.041600 #65]  INFO -- : [7f837069-18f8-4b7c-a940-a85e40faee09] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:18.252857 #65]  INFO -- : [7f837069-18f8-4b7c-a940-a85e40faee09] Completed 200 OK in 211ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.7ms)
+I, [2025-02-17T03:18:18.254707 #65]  INFO -- : [SDB][puma-delay]: trace_id=10011, thread_id=70, remote_port=40844, start_ts=1739762298040219.2, end_ts=1739762298254564.5, delay=214.345333 ms, cpu_time=35.52749599999983 ms, status=200
+I, [2025-02-17T03:18:18.258075 #65]  INFO -- : [2a7d2985-efdf-4920-9156-770455ccd973] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:18 +0000
+I, [2025-02-17T03:18:18.259155 #65]  INFO -- : [2a7d2985-efdf-4920-9156-770455ccd973] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:18.475940 #65]  INFO -- : [2a7d2985-efdf-4920-9156-770455ccd973] Completed 200 OK in 216ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.9ms)
+I, [2025-02-17T03:18:18.476944 #65]  INFO -- : [SDB][puma-delay]: trace_id=10012, thread_id=71, remote_port=40858, start_ts=1739762298256960.8, end_ts=1739762298476866.2, delay=219.905875 ms, cpu_time=24.45233300000016 ms, status=200
+I, [2025-02-17T03:18:18.478939 #65]  INFO -- : [2779de22-638a-419b-93ab-9728c58d03f5] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:18 +0000
+I, [2025-02-17T03:18:18.479788 #65]  INFO -- : [2779de22-638a-419b-93ab-9728c58d03f5] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:18.692703 #65]  INFO -- : [2779de22-638a-419b-93ab-9728c58d03f5] Completed 200 OK in 212ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:18.693547 #65]  INFO -- : [SDB][puma-delay]: trace_id=10013, thread_id=70, remote_port=40870, start_ts=1739762298478124.5, end_ts=1739762298693459.8, delay=215.33504200000002 ms, cpu_time=22.3823310000002 ms, status=200
+I, [2025-02-17T03:18:18.695935 #65]  INFO -- : [a546e846-2d36-4a3e-aaa0-28a6ac893118] Started GET "/" for 127.0.0.1 at 2025-02-17 03:18:18 +0000
+I, [2025-02-17T03:18:18.697196 #65]  INFO -- : [a546e846-2d36-4a3e-aaa0-28a6ac893118] Processing by ApiController#index as */*
+I, [2025-02-17T03:18:18.913091 #65]  INFO -- : [a546e846-2d36-4a3e-aaa0-28a6ac893118] Completed 200 OK in 215ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+I, [2025-02-17T03:18:18.914422 #65]  INFO -- : [SDB][puma-delay]: trace_id=10014, thread_id=71, remote_port=40872, start_ts=1.739762298694568e+15, end_ts=1739762298914286.5, delay=219.71837499999998 ms, cpu_time=23.63391799999981 ms, status=200
