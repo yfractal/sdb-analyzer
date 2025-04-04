@@ -25,7 +25,7 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
 
     presenter = described_class.new(frame_analyzer)
     graph = presenter.render('tmp.png')
-    puts 'You could check the generated image tmp.png too.'
+    puts 'You could check the generated image tmp.png.'
 
     nodes_ids = graph.enumerate_nodes
 
