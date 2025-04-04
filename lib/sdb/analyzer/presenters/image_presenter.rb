@@ -4,18 +4,18 @@ module Sdb
   module Analyzer
     module Presenters
       class ImagePresenter
-        def initialize(frame_analyzer)
-          @frame_analyzer = frame_analyzer
+        def initialize(roots)
+          @roots = roots
         end
 
         def render(file_name)
           graph = GraphViz.new( :G, :type => :digraph )
 
-          @total = @frame_analyzer.roots.map {|root| root.duration }.sum.to_f
+          @total = @roots.map {|root| root.duration }.sum.to_f
 
           @fake_generation = 0
 
-          @frame_analyzer.roots.each do |root|
+          @roots.each do |root|
             graph[:bgcolor] = '#253238'
             meta = {}
             meta[:frame_count] = 0

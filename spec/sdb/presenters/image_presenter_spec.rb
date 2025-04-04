@@ -21,9 +21,9 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
 
     frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
     frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, symbolizer)
-    frame_analyzer.walk
+    roots = frame_analyzer.walk
 
-    presenter = described_class.new(frame_analyzer)
+    presenter = described_class.new(roots)
     graph = presenter.render('tmp.png')
     puts 'You could check the generated image tmp.png.'
 
