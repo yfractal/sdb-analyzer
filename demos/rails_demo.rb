@@ -1,15 +1,11 @@
 require "sdb/analyzer"
 require 'byebug'
 
-time_converter, frames = Sdb::Analyzer::LogReader.read_sdb_log('./demos/rails-demo/sdb.log', 10009)
-symbol_table = Sdb::Analyzer::SymbolsTable.from_log('./demos/rails-demo/symbols.log')
-symbolizer = Sdb::Analyzer::Symbolizer.new(symbol_table, time_converter)
 
-frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, symbolizer)
-frame_analyzer.walk
+analyzer = Sdb::Analyzer::Core.new('./demos/rails-demo/sdb.log', './demos/rails-demo/symbols.log')
+roots = analyzer.analyze(10009)
 
-presenter = Sdb::Analyzer::Presenters::ImagePresenter.new(frame_analyzer)
-
+presenter = Sdb::Analyzer::Presenters::ImagePresenter.new(roots)
 presenter.render('rails_demo.png')
 
 puts 'Please check rails_demo.png'

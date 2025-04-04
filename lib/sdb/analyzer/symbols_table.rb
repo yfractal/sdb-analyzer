@@ -68,6 +68,18 @@ module Sdb
         nil
       end
 
+      # type:
+      # 0: rb_iseq_new_with_opt_return_instrument
+      # 1: rb_iseq_new_with_callback_return_instrument
+      # 2: rb_iseq_new_with_callback_return_instrument_with_callback
+
+      # for c functions
+      # 3: rb_define_method_instrument
+      # 4: rb_method_entry_make_return_instrument
+      # 5: rb_define_module_instrument
+      # 6: rb_define_module_return_instrument
+      # gc move event
+      # 7: gc_move_instrument
       def read_line(data)
         if data['type'] == 5
           @define_module_enter_event = data
@@ -96,11 +108,12 @@ module Sdb
 
             @cfunc_first_event = nil
           end
-        elsif data['type'] != 7 # move event
+        # for ruby functions
+        elsif data['type'] == 0 || data['type'] == 1 || data['type'] == 2
           addr = data['iseq_addr']
-          # TODO fix me
           if addr == 0
-            # puts "addr is 0, data=#{data}"
+            # TODO fix me
+            puts "addr is 0, type=#{data['type']}, data=#{data}"
             return
           end
           ts = data['ts']
@@ -109,7 +122,7 @@ module Sdb
           @iseq_addr_to_iseq[addr] ||= []
           @iseq_addr_to_iseq[addr] << iseq
           @iseq_addr_to_iseq[addr].sort_by! { |iseq| iseq.ts }
-        else
+        elsif data['type'] == 7
           from_addr, to_addr, ts = data['iseq_addr'], data['to_addr'], data['ts']
           if @iseq_addr_to_iseq[from_addr]
             # it moves the most recent record

@@ -66,6 +66,8 @@ module Sdb
             i += 1
           end
         end
+
+        @roots
       end
 
       private
