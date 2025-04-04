@@ -23,9 +23,7 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
     frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, symbolizer)
     frame_analyzer.walk
 
-    puma_log_analyzer = nil
-
-    presenter = described_class.new(frame_analyzer, puma_log_analyzer)
+    presenter = described_class.new(frame_analyzer)
     graph = presenter.render('tmp.png')
     puts 'You could check the generated image tmp.png too.'
 
