@@ -55,6 +55,7 @@ module Sdb
           end
 
           i = 0
+          @not_on_stack = false
 
           iseqs.each do |iseq|
             if on_stack?(iseq, i, ts)
@@ -73,10 +74,19 @@ module Sdb
       private
 
       def on_stack?(iseq_addr, i, ts)
+        return false if @not_on_stack
         iseq = find_iseq(iseq_addr, ts)
-        return false unless @stack[i]
+        if !@stack[i]
+          @not_on_stack = true
+          return false
+        end
+        rv = same_func?(@stack[i].iseq, iseq)
 
-        same_func?(@stack[i].iseq, iseq)
+        if !rv
+          @not_on_stack = true
+        end
+
+        rv
       end
 
       def update_duration(i, ts)
