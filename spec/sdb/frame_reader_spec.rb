@@ -76,7 +76,7 @@ RSpec.describe Sdb::Analyzer::FrameReader do
           [0, 1739367653956162, 281473714183720, 281473714361760, 18446744073709551615, 18446744073709551615]
         ]
 
-        frames = Sdb::Analyzer::FrameReader.read_v2(data)
+        frames = Sdb::Analyzer::FrameReader.read_raw_frames(data)
 
         expect(frames[0].trace_id).to eq 0
         expect(frames[0].ts).to eq 1739367653956162

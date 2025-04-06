@@ -21,7 +21,7 @@ module Sdb
           end
         end
 
-        frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
+        frames = Sdb::Analyzer::FrameReader.read_raw_frames(raw_frames)
 
         if trace_id
           frames = frames.select { |frame| frame.trace_id == trace_id }

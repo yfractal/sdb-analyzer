@@ -19,7 +19,7 @@ RSpec.describe Sdb::Analyzer::Presenters::ImagePresenter do
       [0, 1739411128341820, 281473430970480, 281473431723480, 281473431723280, 281473431723040, 281473431722960, 281473431722880, 281473431722280, 281473488682200, 281473431722520, 281473431561800, 0, 18446744073709551615, 18446744073709551615]
     ]
 
-    frames = Sdb::Analyzer::FrameReader.read_v2(raw_frames)
+    frames = Sdb::Analyzer::FrameReader.read_raw_frames(raw_frames)
     frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, symbolizer)
     roots = frame_analyzer.walk
 

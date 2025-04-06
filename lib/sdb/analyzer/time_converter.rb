@@ -15,7 +15,6 @@ module Sdb
       def initialize(uptime, clock_time)
         @base_uptime = uptime
         @base_clock_time = clock_time
-        # @diff = clock_time - uptime / 1000
       end
 
       def uptime_to_clock_time(uptime)

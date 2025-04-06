@@ -56,7 +56,7 @@ module Sdb
           frames
         end
 
-        def read_v2(data)
+        def read_raw_frames(data)
           raw_frames = self.read(data)
           raw_frames.map { |raw_frame| Frame.from_raw(raw_frame) }
         end

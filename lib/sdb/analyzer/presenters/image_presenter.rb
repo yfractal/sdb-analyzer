@@ -61,7 +61,6 @@ module Sdb
           @fake_generation += 1
           iseq_node.children.each do |child|
             duration = child.duration
-            byebug if duration == nil || @total == nil
             percentage = (duration / @total * 100).round(2)
             label = "#{duration/1000.0}ms (#{percentage}%)"
             child = render_iseq_node(graph, child, meta)
