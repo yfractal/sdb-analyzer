@@ -9,6 +9,7 @@ require_relative "analyzer/time_converter"
 require_relative "analyzer/symbolizer"
 require_relative "analyzer/presenters/image_presenter"
 require_relative "analyzer/presenters/otel_presenter"
+require_relative "analyzer/presenters/html_presenter"
 require_relative "analyzer/log_reader"
 
 module Sdb
