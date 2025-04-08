@@ -62,11 +62,12 @@ module Sdb
 
         def render
           @total = @roots.map(&:duration).sum.to_f
+          @diff = Time.now.to_i * 1_000_000 - @roots[0].ts
 
           @tracer.in_span("Ruby Profile", attributes: {
             'profiler.name' => 'ruby_profile',
             'profiler.type' => 'cpu_profile'
-          }, start_timestamp: @roots[0].ts / 1_000_000, end_timestamp: (@roots[0].ts + @total * 1_000) / 1_000_000) do |parent_span|
+          }, start_timestamp: (@roots[0].ts + @diff)/ 1_000_000_000.0, end_timestamp: (@roots[0].ts + @total * 1_000 + @diff) / 1_000_000_000.0) do |parent_span|
             context = OpenTelemetry::Trace.context_with_span(parent_span)
             @roots.each do |root|
               process_iseq_node(root, context)
@@ -104,7 +105,7 @@ module Sdb
 
 
           OpenTelemetry::Context.with_current(parent_context) do
-            @tracer.in_span(span_name, attributes: attributes, start_timestamp: iseq_node.ts / 1_000_000, end_timestamp: (iseq_node.ts + duration * 1000) / 1_000_000) do |span|
+            @tracer.in_span(span_name, attributes: attributes, start_timestamp: (iseq_node.ts + @diff)/ 1_000_000_000.0, end_timestamp: (iseq_node.ts + duration * 1000 + @diff) / 1_000_000_000.0) do |span|
               new_context = OpenTelemetry::Trace.context_with_span(span)
               iseq_node.children.each do |child|
                 process_iseq_node(child, new_context)
