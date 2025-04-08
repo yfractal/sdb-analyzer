@@ -3,6 +3,25 @@ require 'opentelemetry/exporter/otlp'
 require 'opentelemetry/semantic_conventions'
 require 'securerandom'
 
+
+module OpenTelemetry
+  module Trace
+    class Tracer
+      def in_span(name, attributes: nil, links: nil, start_timestamp: nil, end_timestamp: nil, kind: nil)
+        span = nil
+        span = start_span(name, attributes: attributes, links: links, start_timestamp: start_timestamp, kind: kind)
+        Trace.with_span(span) { |s, c| yield s, c }
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        span&.record_exception(e)
+        span&.status = Status.error("Unhandled exception of type: #{e.class}")
+        raise e
+      ensure
+        span&.finish(end_timestamp: end_timestamp)
+      end
+    end
+  end
+end
+
 OpenTelemetry::SDK.configure do |c|
   # Configure the OTLP exporter for Datadog
   endpoint = ENV.fetch('OTLP_ENDPOINT', 'http://localhost:4318/v1/traces')
@@ -14,6 +33,12 @@ OpenTelemetry::SDK.configure do |c|
       )
     )
   )
+
+  # c.add_span_processor(
+  #   OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor.new(
+  #     OpenTelemetry::SDK::Trace::Export::ConsoleSpanExporter.new
+  #   )
+  # )
 
   c.service_name = ENV.fetch('DD_SERVICE', 'sdb-analyzer')
 
@@ -38,11 +63,10 @@ module Sdb
         def render
           @total = @roots.map(&:duration).sum.to_f
 
-          # Create a parent span for the entire profile
           @tracer.in_span("Ruby Profile", attributes: {
             'profiler.name' => 'ruby_profile',
             'profiler.type' => 'cpu_profile'
-          }) do |parent_span|
+          }, start_timestamp: @roots[0].ts / 1_000_000, end_timestamp: (@roots[0].ts + @total * 1_000) / 1_000_000) do |parent_span|
             context = OpenTelemetry::Trace.context_with_span(parent_span)
             @roots.each do |root|
               process_iseq_node(root, context)
@@ -59,7 +83,6 @@ module Sdb
           file = iseq_node.iseq.path_or_module || ""
           line_no = iseq_node.iseq.first_lineno || 0
           duration = iseq_node.duration
-          return if duration == 0
           percentage = (duration / @total * 100).round(2)
 
           span_name = if file.include?("/") && !file.split("/")[-3..-1].nil?
@@ -79,8 +102,9 @@ module Sdb
             'language' => 'ruby'
           }
 
+
           OpenTelemetry::Context.with_current(parent_context) do
-            @tracer.in_span(span_name, attributes: attributes) do |span|
+            @tracer.in_span(span_name, attributes: attributes, start_timestamp: iseq_node.ts / 1_000_000, end_timestamp: (iseq_node.ts + duration * 1000) / 1_000_000) do |span|
               new_context = OpenTelemetry::Trace.context_with_span(span)
               iseq_node.children.each do |child|
                 process_iseq_node(child, new_context)

@@ -113,7 +113,7 @@ module Sdb
           addr = data['iseq_addr']
           if addr == 0
             # TODO fix me
-            puts "addr is 0, type=#{data['type']}, data=#{data}"
+            # puts "addr is 0, type=#{data['type']}, data=#{data}"
             return
           end
           ts = data['ts']
