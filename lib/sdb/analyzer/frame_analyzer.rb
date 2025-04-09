@@ -11,7 +11,7 @@ module Sdb
         attr_reader :children, :duration, :iseq, :parent
 
         # iseq: SymbolsTable::Iseq
-        # frame: FrameWalker::Frame
+        # frame: FrameReader::Frame
         def initialize(iseq, frame)
           @iseq     = iseq
           @frame    = frame
@@ -20,8 +20,8 @@ module Sdb
           @parent   = nil
         end
 
-        def add_child(frame)
-          @children << frame
+        def add_child(node)
+          @children << node
         end
 
         def update_duration(new_ts)
