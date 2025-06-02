@@ -11,11 +11,17 @@ require_relative "analyzer/presenters/image_presenter"
 require_relative "analyzer/presenters/otel_presenter"
 require_relative "analyzer/presenters/html_presenter"
 require_relative "analyzer/log_reader"
+require_relative "analyzer/symbol_reader"
 
 module Sdb
   module Analyzer
     class Error < StandardError; end
     class Core
+      def self.init(sdb_log)
+        @frames, @symbols = Sdb::Analyzer::LogReader.read(sdb_log)
+        @symbolizer = Sdb::Analyzer::Symbolizer2.new(@symbols)
+      end
+
       def initialize(sdb_log, symbols_log)
         @time_converter, @frames = Sdb::Analyzer::LogReader.read_sdb_log(sdb_log)
         @symbol_table = Sdb::Analyzer::SymbolsTable.from_log(symbols_log)
