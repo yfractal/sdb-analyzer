@@ -7,8 +7,8 @@ module Sdb
     # FrameAnalyzer is for converting frames to call-graph
     class FrameAnalyzer
       class IseqNode
-        attr_writer :parent
-        attr_reader :children, :duration, :iseq, :parent
+        attr_writer :parent, :children
+        attr_reader :children, :duration, :iseq, :parent, :frame
 
         # iseq: SymbolsTable::Iseq
         # frame: FrameReader::Frame
