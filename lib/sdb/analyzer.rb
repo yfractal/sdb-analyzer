@@ -11,6 +11,8 @@ require_relative "analyzer/symbolizer2"
 require_relative "analyzer/presenters/image_presenter"
 require_relative "analyzer/presenters/otel_presenter"
 require_relative "analyzer/presenters/html_presenter"
+require_relative "analyzer/presenters/html_presenter2"
+
 require_relative "analyzer/log_reader"
 require_relative "analyzer/symbol_reader"
 

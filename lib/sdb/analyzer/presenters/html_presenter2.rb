@@ -1,0 +1,57 @@
+module Sdb
+  module Analyzer
+    module Presenters
+      class HtmlPresenter2
+        def initialize(roots)
+          @roots = roots
+        end
+
+        def render
+          rows = []
+
+          @roots.each do |root|
+            depth = 0
+            collect_rows(rows, depth, root)
+          end
+
+          generate_html(rows)
+        end
+
+        private
+        
+        def collect_rows(rows, depth, node)
+          rows[depth] ||= []
+
+          label = if node.iseq.path.split("/").length > 4
+            "#{node.iseq.label} (#{node.iseq.path.split("/")[-4..].join("/")})"
+          else
+            node.iseq.label
+          end
+          rows[depth] << [label, node.ts, node.duration, "bar0", "certain"]
+          node.children.each do |child|
+            collect_rows(rows, depth + 1, child)
+          end
+        end
+
+        def generate_html(rows)
+          # Convert rows to JavaScript array format
+          js_rows = rows.map do |row|
+            if row
+              row_items = row.map { |item| "[#{item.map(&:inspect).join(', ')}]" }.join(', ')
+              "[#{row_items}]"
+            else
+              "[]"
+            end
+          end.join(",\n        ")
+
+          # Read template file
+          template_path = File.join(File.dirname(__FILE__), 'flamegraph_template.html')
+          template = File.read(template_path)
+          
+          # Replace placeholder with data
+          template.gsub('{{PROFILE_DATA}}', js_rows)
+        end
+      end
+    end
+  end
+end

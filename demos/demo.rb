@@ -93,3 +93,8 @@ disambiguated_roots = disambiguate(remove_invalid(roots))
 
 presenter = Sdb::Analyzer::Presenters::OtelPresenter.new(disambiguated_roots)
 presenter.render
+
+presenter = Sdb::Analyzer::Presenters::HtmlPresenter2.new(disambiguated_roots)
+html_content = presenter.render
+File.write('flamegraph.html', html_content)
+puts 'Please check flamegraph.html'

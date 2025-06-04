@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruby Profile</title>
+  <style>
+    body { font-family: monospace; background: #fdf6e3; }
+    .bar-row { 
+      display: block; 
+      margin-bottom: 2px; 
+      position: relative;
+      height: 36px;
+      width: 100%;
+    }
+    .bar {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      color: #222;
+      font-size: 14px;
+      border-radius: 3px;
+      padding-left: 6px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 1;
+      transition: opacity 1s, box-shadow 0.3s, filter 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+      border: 2px solid transparent;
+      position: absolute;
+      top: 0;
+    }
+    
+    /* Certain/Real bars - solid and clear */
+    .bar.certain {
+      filter: none;
+      opacity: 1;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Uncertain bars - blurred and less definitive */
+    .bar.uncertain {
+      filter: blur(1px);
+      opacity: 0.7;
+      border: 2px dashed rgba(0, 0, 0, 0.3);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.1) 4px,
+        rgba(255, 255, 255, 0.1) 8px
+      );
+    }
+    
+    .bar:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+      z-index: 10;
+    }
+    
+    .bar.uncertain:hover {
+      filter: blur(0.5px);
+      opacity: 0.9;
+    }
+    
+    /* Custom tooltip */
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tooltip.visible {
+      opacity: 1;
+    }
+    
+    /* Color scheme for different depth levels */
+    .bar0 { background: #e6e600; }
+    .bar1 { background: #e6b800; }
+    .bar2 { background: #e67e22; }
+    .bar3 { background: #e65500; }
+    .bar4 { background: #d62728; color: #fff; }
+    .bar5 { background: #a80000; color: #fff; }
+    .bar6 { background: #8e0000; color: #fff; }
+    .bar7 { background: #7a0000; color: #fff; }
+    .bar8 { background: #660000; color: #fff; }
+    .bar9 { background: #520000; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>Ruby Profile Flamegraph</h1>
+  <div id="flamegraph"></div>
+  <div class="tooltip" id="tooltip"></div>
+  <script>
+    // Profile data: [label, timestamp, duration, color, certainty]
+    const rawData = [
+      {{PROFILE_DATA}}
+    ];
+
+    // Convert raw data to relative positions
+    function convertData(rawData) {
+      // Find the minimum timestamp across all data
+      let minTimestamp = Infinity;
+      let maxEndTime = 0;
+      
+      rawData.forEach(row => {
+        if (row && row.length > 0) {
+          row.forEach(([label, timestamp, duration, color, certainty]) => {
+            minTimestamp = Math.min(minTimestamp, timestamp);
+            maxEndTime = Math.max(maxEndTime, timestamp + duration);
+          });
+        }
+      });
+      
+      // Convert to relative positions
+      return rawData.map(row => {
+        if (!row || row.length === 0) return [];
+        return row.map(([label, timestamp, duration, color, certainty]) => {
+          const relativeStart = timestamp - minTimestamp;
+          return [label, relativeStart, duration, color, certainty];
+        });
+      });
+    }
+
+    const rows = convertData(rawData);
+    
+    // Calculate max width for scaling
+    let maxWidth = 0;
+    rows.forEach(row => {
+      if (row && row.length > 0) {
+        row.forEach(([label, startPos, duration, color, certainty]) => {
+          maxWidth = Math.max(maxWidth, startPos + duration);
+        });
+      }
+    });
+
+    const container = document.getElementById('flamegraph');
+    const tooltip = document.getElementById('tooltip');
+
+    rows.forEach((barsInRow, rowIdx) => {
+      if (!barsInRow || barsInRow.length === 0) return;
+      
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+
+      barsInRow.forEach(([label, startPos, duration, color, certainty], barIdx) => {
+        console.log(label, startPos, duration, color, certainty);
+        const bar = document.createElement('div');
+        
+        // Use different colors for different depths
+        const depthColor = `bar${Math.min(rowIdx, 9)}`;
+        bar.className = `bar ${depthColor} ${certainty}`;
+        bar.style.left = (startPos / maxWidth * 100) + '%';
+        bar.style.width = Math.max(0.5, (duration / maxWidth * 100)) + '%';
+        bar.textContent = label;
+        
+        // Add hover events for custom tooltip
+        bar.addEventListener('mouseenter', (e) => {
+          tooltip.textContent = `${label} - Duration: ${(duration / 1000).toFixed(2)}ms`;
+          tooltip.classList.add('visible');
+        });
+        
+        bar.addEventListener('mousemove', (e) => {
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY - 10) + 'px';
+        });
+        
+        bar.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('visible');
+        });
+
+        row.appendChild(bar);
+      });
+
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html> 
