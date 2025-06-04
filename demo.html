@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flamegraph Bars Example</title>
+  <style>
+    body { font-family: monospace; background: #fdf6e3; }
+    .bar-row { display: flex; margin-bottom: 2px; }
+    .bar {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      color: #222;
+      font-size: 14px;
+      border-radius: 3px;
+      margin-right: 2px;
+      padding-left: 6px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 1;
+      transition: opacity 1s, box-shadow 0.3s, filter 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+      border: 2px solid transparent;
+    }
+    
+    /* Certain/Real bars - solid and clear */
+    .bar.certain {
+      filter: none;
+      opacity: 1;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Uncertain bars - blurred and less definitive */
+    .bar.uncertain {
+      filter: blur(1px);
+      opacity: 0.7;
+      border: 2px dashed rgba(0, 0, 0, 0.3);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.1) 4px,
+        rgba(255, 255, 255, 0.1) 8px
+      );
+    }
+    
+    .bar:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    .bar.uncertain:hover {
+      filter: blur(0.5px);
+      opacity: 0.9;
+    }
+    
+    .fade-in {
+      opacity: 0;
+      animation: fadeInBar 1.5s forwards;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    @keyframes fadeInBar {
+      from { 
+        opacity: 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      to   { 
+        opacity: 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+    }
+    /* Example colors, similar to your image */
+    .bar0 { background: #e6e600; }
+    .bar1 { background: #e6b800; }
+    .bar2 { background: #e67e22; }
+    .bar3 { background: #e65500; }
+    .bar4 { background: #d62728; color: #fff; box-shadow: 0 3px 6px rgba(214, 39, 40, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2); }
+    .bar5 { background: #a80000; color: #fff; box-shadow: 0 3px 6px rgba(168, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2); }
+  </style>
+</head>
+<body>
+  <div id="flamegraph"></div>
+  <script>
+    // Example data: each row is an array of bars: [label, width, color class, certainty]
+    const rows = [
+      [
+        ["pthread_mutex_lock(&slabs_lock) (slabs.c:660:5)", 285, "bar0", "certain"],
+        ["memset(ptr, 0, (size_t)len) (slabs.c:396:5)", 285, "bar0", "uncertain"]
+      ],
+      [
+        ["slabs_alloc(ntotal, id, 0) (items.c:189:14)", 280, "bar1", "certain"],
+        ["do_slabs_newslab(id) (slabs.c:423:9)", 280, "bar1", "uncertain"]
+      ],
+      [
+        ["do_item_alloc_pull(ntotal, id) (items.c:306:14)", 275, "bar2", "uncertain"]
+      ],
+      [
+        ["item_alloc(key, nkey, req->message.body.flags, (proto_bin.c:1121:10)", 260, "bar2", "certain"]
+      ],
+      [
+        ["process_bin_update(c, extbuf) (proto_bin.c:992:17)", 255, "bar3", "uncertain"]
+      ],
+      [
+        ["c->try_read_command(c) (memcached.c:3135:17)", 235, "bar4", "certain"]
+      ],
+      [
+        ["(evcb_callback)(evcb_fd, evcb_res, evcb_arg) (event.c:1659:9)", 200, "bar5", "uncertain"]
+      ]
+    ];
+
+    const maxWidth = 856; // max width in microseconds, as in your image
+    const container = document.getElementById('flamegraph');
+
+    rows.forEach((barsInRow, rowIdx) => {
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+
+      barsInRow.forEach(([label, width, color, certainty], barIdx) => {
+        const bar = document.createElement('div');
+        bar.className = `bar ${color} ${certainty}`;
+        bar.style.width = (width / maxWidth * 100) + '%';
+        bar.textContent = label;
+
+        row.appendChild(bar);
+      });
+
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>
