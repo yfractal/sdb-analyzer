@@ -59,7 +59,9 @@ module Sdb
           template = File.read(template_path)
           
           # Replace placeholder with data
-          template.gsub('{{PROFILE_DATA}}', js_rows)
+          template
+            .gsub('{{PROFILE_DATA}}', js_rows)
+            .gsub('{{SAMPLING_INTERVAL_MS}}', 1000.to_s) # todo: read the sampling interval from SDB log's header
         end
       end
     end

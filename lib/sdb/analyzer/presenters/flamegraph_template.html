@@ -20,7 +20,7 @@
       align-items: center;
       color: #222;
       font-size: 14px;
-      border-radius: 3px;
+      /* border-radius: 3px; */
       padding-left: 6px;
       box-sizing: border-box;
       white-space: nowrap;
@@ -28,7 +28,7 @@
       text-overflow: ellipsis;
       opacity: 1;
       transition: opacity 1s, box-shadow 0.3s, filter 0.3s;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+      /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1); */
       border: 2px solid transparent;
       position: absolute;
       top: 0;
@@ -39,37 +39,46 @@
     .gradient-left,
     .gradient-right {
       position: absolute;
-      top: 0;
+      /* top: 1px; */
       height: 32px;
-      width: 16px;
+      width: 12px;
       z-index: 1;
-      opacity: 0.6;
+      opacity: 0.5;
+      /* border-radius: 2px; */
     }
 
     .gradient-left {
-      left: -16px;
-      background: linear-gradient(to right, transparent, var(--bar-color, #e6e600));
-      border-radius: 3px 0 0 3px;
+      left: -12px;
+      background: linear-gradient(90deg, 
+        color-mix(in srgb, var(--bar-color) 20%, transparent) 0%,
+        color-mix(in srgb, var(--bar-color) 40%, transparent) 20%,
+        color-mix(in srgb, var(--bar-color) 70%, transparent) 40%, 
+        var(--bar-color) 60%,
+        var(--bar-color) 100%);
+      box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.1);
     }
 
     .gradient-right {
-      right: -16px;
-      background: linear-gradient(to left, transparent, var(--bar-color, #e6e600));
-      border-radius: 0 3px 3px 0;
+      right: -12px;
+      background: linear-gradient(90deg,
+        var(--bar-color) 0%,
+        var(--bar-color) 40%,
+        color-mix(in srgb, var(--bar-color) 70%, transparent) 60%,
+        color-mix(in srgb, var(--bar-color) 40%, transparent) 80%,
+        color-mix(in srgb, var(--bar-color) 20%, transparent) 100%);
+      box-shadow: inset -1px 0 2px rgba(0, 0, 0, 0.1);
     }
 
     /* Certain/Real bars - solid and clear */
     .bar.certain {
       filter: none;
       opacity: 1;
-      border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
     /* Uncertain bars - blurred and less definitive */
     .bar.uncertain {
       filter: blur(1px);
       opacity: 0.7;
-      border: 2px dashed rgba(0, 0, 0, 0.3);
       background-image: repeating-linear-gradient(
         45deg,
         transparent,
@@ -124,7 +133,11 @@
   </style>
 </head>
 <body>
-  <h1>Ruby Profile Flamegraph</h1>
+  <h1>Single Request FlameGraph by SDB</h1>
+  <p style="color: #666; font-size: 14px; margin: 10px 0 20px 0; line-height: 1.4;">
+    Data collected by sampling Ruby stacks. The gradient areas around each bar represent timing uncertainty - 
+    actual function execution may have started slightly earlier or ended slightly later than the sampled measurements indicate.
+  </p>
   <div id="flamegraph"></div>
   <div class="tooltip" id="tooltip"></div>
   <script>
@@ -133,6 +146,7 @@
       {{PROFILE_DATA}}
     ];
 
+    const samplingIntervalMs = {{SAMPLING_INTERVAL_MS}};
     // Convert raw data to relative positions
     function convertData(rawData) {
       // Find the minimum timestamp across all data
@@ -192,8 +206,8 @@
     // Helper function to get bar color by depth
     function getBarColor(depth) {
       const colors = [
-        '#eeee00', '#ffcc00', '#ffaa00', '#ff8800', '#ff6600',
-        '#ff4400', '#ee2200', '#cc0000', '#aa0000', '#880000'
+        '#880000', '#aa0000', '#cc0000', '#ee2200', '#ff8800',
+        '#ff4400', '#ff6600', '#ffaa00', '#ffcc00', '#eeee00'
       ];
       return colors[Math.min(depth, 9)];
     }
@@ -221,9 +235,9 @@
         const gradientLeft = document.createElement('div');
         gradientLeft.className = 'gradient-left';
         gradientLeft.style.setProperty('--bar-color', getBarColor(rowIdx));
-        let left = timestamp - minTimestamp - 500;
+        let left = timestamp - minTimestamp - samplingIntervalMs / 2;
         gradientLeft.style.left = (left / maxWidth * 100) + '%';
-        gradientLeft.style.width = (500 / maxWidth * 100) + '%';
+        gradientLeft.style.width = (samplingIntervalMs / 2 / maxWidth * 100) + '%';
 
 
         const gradientRight = document.createElement('div');
@@ -231,7 +245,7 @@
         gradientRight.style.setProperty('--bar-color', getBarColor(rowIdx));
         let right = timestamp + duration - minTimestamp;
         gradientRight.style.left = (right / maxWidth * 100) + '%';
-        gradientRight.style.width = (500 / maxWidth * 100) + '%';
+        gradientRight.style.width = (samplingIntervalMs / 2 / maxWidth * 100) + '%';
 
         // Add hover events for custom tooltip
         bar.addEventListener('mouseenter', (e) => {
