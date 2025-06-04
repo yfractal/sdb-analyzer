@@ -87,7 +87,9 @@ def disambiguate(roots)
 end
 
 disambiguated_roots = disambiguate(remove_invalid(roots))
-presenter = Sdb::Analyzer::Presenters::ImagePresenter.new(disambiguated_roots)
-presenter.render('demo.png')
+# presenter = Sdb::Analyzer::Presenters::ImagePresenter.new(disambiguated_roots)
+# presenter.render('demo.png')
+# puts 'Please check demo.png'
 
-puts 'Please check demo.png'
+presenter = Sdb::Analyzer::Presenters::OtelPresenter.new(disambiguated_roots)
+presenter.render

@@ -2,6 +2,24 @@ require 'opentelemetry/sdk'
 require 'opentelemetry/exporter/otlp'
 require 'opentelemetry/semantic_conventions'
 
+module OpenTelemetry
+  module Trace
+    class Tracer
+      def in_span(name, attributes: nil, links: nil, start_timestamp: nil, end_timestamp: nil, kind: nil)
+        span = nil
+        span = start_span(name, attributes: attributes, links: links, start_timestamp: start_timestamp, kind: kind)
+        Trace.with_span(span) { |s, c| yield s, c }
+      rescue Exception => e # rubocop:disable Lint/RescueException
+        span&.record_exception(e)
+        span&.status = Status.error("Unhandled exception of type: #{e.class}")
+        raise e
+      ensure
+        span&.finish(end_timestamp: end_timestamp)
+      end
+    end
+  end
+end
+
 OpenTelemetry::SDK.configure do |c|
   endpoint = ENV.fetch('OTLP_ENDPOINT', 'http://localhost:4318/v1/traces')
   puts "Using OTLP endpoint: #{endpoint}"
