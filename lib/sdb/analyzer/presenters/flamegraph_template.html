@@ -5,12 +5,14 @@
   <title>Ruby Profile</title>
   <style>
     body { font-family: monospace; background: #fdf6e3; }
+    #flamegraph { overflow: visible; }
     .bar-row { 
       display: block; 
       margin-bottom: 2px; 
       position: relative;
       height: 36px;
       width: 100%;
+      overflow: visible;
     }
     .bar {
       height: 32px;
@@ -30,6 +32,30 @@
       border: 2px solid transparent;
       position: absolute;
       top: 0;
+      z-index: 2;
+    }
+    
+    /* Sampling uncertainty representation with gradient edges */
+    .gradient-left,
+    .gradient-right {
+      position: absolute;
+      top: 0;
+      height: 32px;
+      width: 16px;
+      z-index: 1;
+      opacity: 0.6;
+    }
+    
+    .gradient-left {
+      left: -16px;
+      background: linear-gradient(to right, transparent, var(--bar-color, #e6e600));
+      border-radius: 3px 0 0 3px;
+    }
+    
+    .gradient-right {
+      right: -16px;
+      background: linear-gradient(to left, transparent, var(--bar-color, #e6e600));
+      border-radius: 0 3px 3px 0;
     }
     
     /* Certain/Real bars - solid and clear */
@@ -85,16 +111,16 @@
     }
     
     /* Color scheme for different depth levels */
-    .bar0 { background: #e6e600; }
-    .bar1 { background: #e6b800; }
-    .bar2 { background: #e67e22; }
-    .bar3 { background: #e65500; }
-    .bar4 { background: #d62728; color: #fff; }
-    .bar5 { background: #a80000; color: #fff; }
-    .bar6 { background: #8e0000; color: #fff; }
-    .bar7 { background: #7a0000; color: #fff; }
-    .bar8 { background: #660000; color: #fff; }
-    .bar9 { background: #520000; color: #fff; }
+    .bar0 { background: #e6e600; --bar-color: #e6e600; }
+    .bar1 { background: #e6b800; --bar-color: #e6b800; }
+    .bar2 { background: #e67e22; --bar-color: #e67e22; }
+    .bar3 { background: #e65500; --bar-color: #e65500; }
+    .bar4 { background: #d62728; color: #fff; --bar-color: #d62728; }
+    .bar5 { background: #a80000; color: #fff; --bar-color: #a80000; }
+    .bar6 { background: #8e0000; color: #fff; --bar-color: #8e0000; }
+    .bar7 { background: #7a0000; color: #fff; --bar-color: #7a0000; }
+    .bar8 { background: #660000; color: #fff; --bar-color: #660000; }
+    .bar9 { background: #520000; color: #fff; --bar-color: #520000; }
   </style>
 </head>
 <body>
@@ -127,9 +153,25 @@
         if (!row || row.length === 0) return [];
         return row.map(([label, timestamp, duration, color, certainty]) => {
           const relativeStart = timestamp - minTimestamp;
-          return [label, relativeStart, duration, color, certainty];
+          return [label, relativeStart, duration, color, certainty, timestamp];
         });
       });
+    }
+
+    function getMinTimestamp(rawData) {
+      let minTimestamp = Infinity;
+      let maxEndTime = 0;
+      
+      rawData.forEach(row => {
+        if (row && row.length > 0) {
+          row.forEach(([label, timestamp, duration, color, certainty]) => {
+            minTimestamp = Math.min(minTimestamp, timestamp);
+            maxEndTime = Math.max(maxEndTime, timestamp + duration);
+          });
+        }
+      });
+      
+      return minTimestamp;
     }
 
     const rows = convertData(rawData);
@@ -147,22 +189,49 @@
     const container = document.getElementById('flamegraph');
     const tooltip = document.getElementById('tooltip');
 
+    // Helper function to get bar color by depth
+    function getBarColor(depth) {
+      const colors = [
+        '#e6e600', '#e6b800', '#e67e22', '#e65500', '#d62728',
+        '#a80000', '#8e0000', '#7a0000', '#660000', '#520000'
+      ];
+      return colors[Math.min(depth, 9)];
+    }
+
+    let minTimestamp = getMinTimestamp(rawData);
     rows.forEach((barsInRow, rowIdx) => {
       if (!barsInRow || barsInRow.length === 0) return;
       
       const row = document.createElement('div');
       row.className = 'bar-row';
 
-      barsInRow.forEach(([label, startPos, duration, color, certainty], barIdx) => {
-        console.log(label, startPos, duration, color, certainty);
+      barsInRow.forEach(([label, startPos, duration, color, certainty, timestamp], barIdx) => {
+        console.log(label, startPos, duration, color, certainty, timestamp, minTimestamp);
         const bar = document.createElement('div');
         
         // Use different colors for different depths
         const depthColor = `bar${Math.min(rowIdx, 9)}`;
         bar.className = `bar ${depthColor} ${certainty}`;
         bar.style.left = (startPos / maxWidth * 100) + '%';
-        bar.style.width = Math.max(0.5, (duration / maxWidth * 100)) + '%';
+        bar.style.width = (duration / maxWidth * 100) + '%';
         bar.textContent = label;
+
+        
+        // Create gradient areas for sampling uncertainty
+        const gradientLeft = document.createElement('div');
+        gradientLeft.className = 'gradient-left';
+        gradientLeft.style.setProperty('--bar-color', getBarColor(rowIdx));
+        let left = timestamp - minTimestamp - 500;
+        gradientLeft.style.left = (left / maxWidth * 100) + '%';
+        gradientLeft.style.width = (500 / maxWidth * 100) + '%';
+        
+        
+        const gradientRight = document.createElement('div');
+        gradientRight.className = 'gradient-right';
+        gradientRight.style.setProperty('--bar-color', getBarColor(rowIdx));
+        let right = timestamp + duration - minTimestamp;
+        gradientRight.style.left = (right / maxWidth * 100) + '%';
+        gradientRight.style.width = (500 / maxWidth * 100) + '%';
         
         // Add hover events for custom tooltip
         bar.addEventListener('mouseenter', (e) => {
@@ -179,7 +248,9 @@
           tooltip.classList.remove('visible');
         });
 
+        row.appendChild(gradientLeft);
         row.appendChild(bar);
+        row.appendChild(gradientRight);
       });
 
       container.appendChild(row);

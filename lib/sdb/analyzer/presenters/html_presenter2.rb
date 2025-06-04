@@ -27,7 +27,17 @@ module Sdb
           else
             node.iseq.label
           end
-          rows[depth] << [label, node.ts, node.duration, "bar0", "certain"]
+
+          puts "node.duration=#{node.duration}"
+
+          duration, certainty = if node.duration == 0
+            # [500, 'uncertain']
+            [node.duration, 'certain']
+          else
+            [node.duration, 'certain']
+          end
+
+          rows[depth] << [label, node.ts, duration, "bar0", certainty]
           node.children.each do |child|
             collect_rows(rows, depth + 1, child)
           end
