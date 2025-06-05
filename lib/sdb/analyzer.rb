@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require_relative "analyzer/version"
+require_relative "analyzer/disambiguator"
 require_relative "analyzer/frame_reader"
 require_relative "analyzer/frame_analyzer"
+require_relative "analyzer/log_reader"
 require_relative "analyzer/puma_log_analyzer"
 require_relative "analyzer/symbols_table"
-require_relative "analyzer/time_converter"
+require_relative "analyzer/symbol_reader"
 require_relative "analyzer/symbolizer"
 require_relative "analyzer/symbolizer2"
+require_relative "analyzer/time_converter"
 require_relative "analyzer/presenters/image_presenter"
 require_relative "analyzer/presenters/otel_presenter"
 require_relative "analyzer/presenters/html_presenter"
 require_relative "analyzer/presenters/single_request_flamegraph_presenter"
-
-require_relative "analyzer/log_reader"
-require_relative "analyzer/symbol_reader"
 
 module Sdb
   module Analyzer
