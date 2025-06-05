@@ -40,7 +40,7 @@ module Sdb
             meta[:frame_count] += 1
           end
 
-          method, file, line_no = iseq_node.iseq.name, iseq_node.iseq.path_or_module, iseq_node.iseq.first_lineno
+          method, file, line_no = iseq_node.iseq.label, iseq_node.iseq.path, 0
 
           if method == nil
             meta[:no_symbols_count] += 1
