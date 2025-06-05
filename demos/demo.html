@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruby Profile</title>
+  <style>
+    body { font-family: monospace; background: #fdf6e3; }
+    #flamegraph { overflow: visible; }
+    .bar-row {
+      display: block;
+      margin-bottom: 2px;
+      position: relative;
+      height: 36px;
+      width: 100%;
+      overflow: visible;
+    }
+    .bar {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      color: #222;
+      font-size: 14px;
+      /* border-radius: 3px; */
+      padding-left: 6px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 1;
+      transition: opacity 1s, box-shadow 0.3s, filter 0.3s;
+      /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1); */
+      border: 2px solid transparent;
+      position: absolute;
+      top: 0;
+      z-index: 2;
+    }
+
+    /* Sampling uncertainty representation with gradient edges */
+    .gradient-left,
+    .gradient-right {
+      position: absolute;
+      /* top: 1px; */
+      height: 32px;
+      width: 12px;
+      z-index: 1;
+      opacity: 0.5;
+      /* border-radius: 2px; */
+    }
+
+    .gradient-left {
+      left: -12px;
+      background: linear-gradient(90deg, 
+        color-mix(in srgb, var(--bar-color) 20%, transparent) 0%,
+        color-mix(in srgb, var(--bar-color) 40%, transparent) 20%,
+        color-mix(in srgb, var(--bar-color) 70%, transparent) 40%, 
+        var(--bar-color) 60%,
+        var(--bar-color) 100%);
+      box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-right {
+      right: -12px;
+      background: linear-gradient(90deg,
+        var(--bar-color) 0%,
+        var(--bar-color) 40%,
+        color-mix(in srgb, var(--bar-color) 70%, transparent) 60%,
+        color-mix(in srgb, var(--bar-color) 40%, transparent) 80%,
+        color-mix(in srgb, var(--bar-color) 20%, transparent) 100%);
+      box-shadow: inset -1px 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Certain/Real bars - solid and clear */
+    .bar.certain {
+      filter: none;
+      opacity: 1;
+    }
+
+    /* Uncertain bars - blurred and less definitive */
+    .bar.uncertain {
+      filter: blur(1px);
+      opacity: 0.7;
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.1) 4px,
+        rgba(255, 255, 255, 0.1) 8px
+      );
+    }
+
+    .bar:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+      z-index: 10;
+    }
+
+    .bar.uncertain:hover {
+      filter: blur(0.5px);
+      opacity: 0.9;
+    }
+
+    /* Custom tooltip */
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .tooltip.visible {
+      opacity: 1;
+    }
+
+   /* Color scheme for different depth levels */
+   .bar0 {  background: #880000; color: #fff; --bar-color: #880000; }
+   .bar1 { background: #aa0000; color: #fff; --bar-color: #aa0000;  }
+   .bar2 { background: #cc0000; color: #fff; --bar-color: #cc0000; }
+   .bar3 { background: #ee2200; color: #fff; --bar-color: #ee2200; }
+   .bar4 {  background: #ff8800; color: #000; --bar-color: #ff8800; }
+   .bar5 { background: #ff4400; color: #fff; --bar-color: #ff4400; }
+   .bar6 { background: #ff6600; color: #fff; --bar-color: #ff6600; }
+   .bar7 {  background: #ffaa00; color: #000; --bar-color: #ffaa00;}
+   .bar8 {  background: #ffcc00; color: #000; --bar-color: #ffcc00;}
+   .bar9 { background: #eeee00; color: #000; --bar-color: #eeee00; }
+  </style>
+</head>
+<body>
+  <h1>Single Request FlameGraph by SDB</h1>
+  <p style="color: #666; font-size: 14px; margin: 10px 0 20px 0; line-height: 1.4;">
+    Data collected by sampling Ruby stacks. The gradient areas around each bar represent timing uncertainty - 
+    actual function execution may have started slightly earlier or ended slightly later than the sampled measurements indicate.
+  </p>
+  <div id="flamegraph"></div>
+  <div class="tooltip" id="tooltip"></div>
+  <script>
+    // Profile data: [label, timestamp, duration, color, certainty]
+    const rawData = [
+      [["block in spawn_thread (puma-6.4.2/lib/puma/thread_pool.rb)", 1748832185687532, 14820, "bar0", "certain"]],
+        [["process_action (lib/action_controller/metal/params_wrapper.rb)", 1748832185687532, 14820, "bar0", "certain"]],
+        [["filtered_parameters (lib/action_dispatch/http/filter_parameters.rb)", 1748832185687532, 0, "bar0", "certain"], ["instrument (activesupport-7.1.3.4/lib/active_support/notifications.rb)", 1748832185688664, 13688, "bar0", "certain"]],
+        [["compile_filters! (activesupport-7.1.3.4/lib/active_support/parameter_filter.rb)", 1748832185687532, 0, "bar0", "certain"], ["render_collection_with_partial (lib/action_view/renderer/collection_renderer.rb)", 1748832185688664, 13688, "bar0", "certain"]],
+        [["length (lib/action_view/renderer/collection_renderer.rb)", 1748832185688664, 1130, "bar0", "certain"], ["instrument (activesupport-7.1.3.4/lib/active_support/notifications.rb)", 1748832185690928, 11424, "bar0", "certain"]],
+        [["skip_query_cache_if_necessary (activerecord-7.1.3.4/lib/active_record/relation.rb)", 1748832185688664, 1130, "bar0", "certain"], ["each_with_info (jbuilder-2.12.0/lib/jbuilder/collection_renderer.rb)", 1748832185690928, 11424, "bar0", "certain"]],
+        [["exec_main_query (activerecord-7.1.3.4/lib/active_record/relation.rb)", 1748832185688664, 0, "bar0", "certain"], ["instantiate_records (activerecord-7.1.3.4/lib/active_record/relation.rb)", 1748832185689794, 0, "bar0", "certain"], ["preload! (lib/action_view/renderer/collection_renderer.rb)", 1748832185690928, 0, "bar0", "certain"], ["each_with_info (lib/action_view/renderer/collection_renderer.rb)", 1748832185692060, 10292, "bar0", "certain"]],
+        [["synchronize (lib/active_support/concurrency/null_lock.rb)", 1748832185688664, 0, "bar0", "certain"], ["init_internals (activerecord-7.1.3.4/lib/active_record/persistence.rb)", 1748832185689794, 0, "bar0", "certain"], ["marshal_load (lib/active_support/cache/serializer_with_fallback.rb)", 1748832185690928, 0, "bar0", "certain"], ["_scope (gems/jbuilder-2.12.0/lib/jbuilder.rb)", 1748832185692060, 10292, "bar0", "certain"]],
+        [["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185692060, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185693191, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185694322, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185695453, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185696590, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185697726, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185698861, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185699995, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185701218, 0, "bar0", "certain"], ["block in collection_with_template (lib/action_view/renderer/collection_renderer.rb)", 1748832185702352, 0, "bar0", "certain"]],
+        [["marshal_load (lib/active_support/cache/serializer_with_fallback.rb)", 1748832185692060, 0, "bar0", "certain"], ["fill_buffer (lib/redis_client/ruby_connection/buffered_io.rb)", 1748832185693191, 0, "bar0", "certain"], ["block in fill_buffer (lib/redis_client/ruby_connection/buffered_io.rb)", 1748832185694322, 0, "bar0", "certain"], ["fill_buffer (lib/redis_client/ruby_connection/buffered_io.rb)", 1748832185695453, 0, "bar0", "certain"], ["block in fill_buffer (lib/redis_client/ruby_connection/buffered_io.rb)", 1748832185696590, 0, "bar0", "certain"], ["block in relevant_rules (lib/cancan/ability/rules.rb)", 1748832185697726, 0, "bar0", "certain"], ["_read_attribute (lib/active_record/attribute_methods/read.rb)", 1748832185698861, 0, "bar0", "certain"], ["block in _app_views_api_v__application__abilities_json_jbuilder__2043492486213130796_97660", 1748832185699995, 0, "bar0", "certain"], ["can?", 1748832185701218, 0, "bar0", "certain"], ["alternative_subjects (cancancan-3.6.1/lib/cancan/ability.rb)", 1748832185702352, 0, "bar0", "certain"]]
+    ];
+
+    const samplingIntervalMs = 1000;
+    // Convert raw data to relative positions
+    function convertData(rawData) {
+      // Find the minimum timestamp across all data
+      let minTimestamp = Infinity;
+      let maxEndTime = 0;
+
+      rawData.forEach(row => {
+        if (row && row.length > 0) {
+          row.forEach(([label, timestamp, duration, color, certainty]) => {
+            minTimestamp = Math.min(minTimestamp, timestamp);
+            maxEndTime = Math.max(maxEndTime, timestamp + duration);
+          });
+        }
+      });
+
+      // Convert to relative positions
+      return rawData.map(row => {
+        if (!row || row.length === 0) return [];
+        return row.map(([label, timestamp, duration, color, certainty]) => {
+          const relativeStart = timestamp - minTimestamp;
+          return [label, relativeStart, duration, color, certainty, timestamp];
+        });
+      });
+    }
+
+    function getMinTimestamp(rawData) {
+      let minTimestamp = Infinity;
+      let maxEndTime = 0;
+
+      rawData.forEach(row => {
+        if (row && row.length > 0) {
+          row.forEach(([label, timestamp, duration, color, certainty]) => {
+            minTimestamp = Math.min(minTimestamp, timestamp);
+            maxEndTime = Math.max(maxEndTime, timestamp + duration);
+          });
+        }
+      });
+
+      return minTimestamp;
+    }
+
+    const rows = convertData(rawData);
+
+    // Calculate max width for scaling
+    let maxWidth = 0;
+    rows.forEach(row => {
+      if (row && row.length > 0) {
+        row.forEach(([label, startPos, duration, color, certainty]) => {
+          maxWidth = Math.max(maxWidth, startPos + duration);
+        });
+      }
+    });
+
+    const container = document.getElementById('flamegraph');
+    const tooltip = document.getElementById('tooltip');
+
+    // Helper function to get bar color by depth
+    function getBarColor(depth) {
+      const colors = [
+        '#880000', '#aa0000', '#cc0000', '#ee2200', '#ff8800',
+        '#ff4400', '#ff6600', '#ffaa00', '#ffcc00', '#eeee00'
+      ];
+      return colors[Math.min(depth, 9)];
+    }
+
+    let minTimestamp = getMinTimestamp(rawData);
+    rows.forEach((barsInRow, rowIdx) => {
+      if (!barsInRow || barsInRow.length === 0) return;
+
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+
+      barsInRow.forEach(([label, startPos, duration, color, certainty, timestamp], barIdx) => {
+        console.log(label, startPos, duration, color, certainty, timestamp, minTimestamp);
+        const bar = document.createElement('div');
+
+        // Use different colors for different depths
+        const depthColor = `bar${Math.min(rowIdx, 9)}`;
+        bar.className = `bar ${depthColor} ${certainty}`;
+        bar.style.left = (startPos / maxWidth * 100) + '%';
+        bar.style.width = (duration / maxWidth * 100) + '%';
+        bar.textContent = label;
+
+
+        // Create gradient areas for sampling uncertainty
+        const gradientLeft = document.createElement('div');
+        gradientLeft.className = 'gradient-left';
+        gradientLeft.style.setProperty('--bar-color', getBarColor(rowIdx));
+        let left = timestamp - minTimestamp - samplingIntervalMs / 2;
+        gradientLeft.style.left = (left / maxWidth * 100) + '%';
+        gradientLeft.style.width = (samplingIntervalMs / 2 / maxWidth * 100) + '%';
+
+
+        const gradientRight = document.createElement('div');
+        gradientRight.className = 'gradient-right';
+        gradientRight.style.setProperty('--bar-color', getBarColor(rowIdx));
+        let right = timestamp + duration - minTimestamp;
+        gradientRight.style.left = (right / maxWidth * 100) + '%';
+        gradientRight.style.width = (samplingIntervalMs / 2 / maxWidth * 100) + '%';
+
+        // Add hover events for custom tooltip
+        bar.addEventListener('mouseenter', (e) => {
+          tooltip.textContent = `${label} - Duration: ${(duration / 1000).toFixed(2)}ms`;
+          tooltip.classList.add('visible');
+        });
+
+        bar.addEventListener('mousemove', (e) => {
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY - 10) + 'px';
+        });
+
+        bar.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('visible');
+        });
+
+        // Add hover events for gradient areas
+        gradientLeft.addEventListener('mouseenter', (e) => {
+          tooltip.textContent = `${label} - Duration: ${(duration / 1000).toFixed(2)}ms (sampling uncertainty)`;
+          tooltip.classList.add('visible');
+        });
+
+        gradientLeft.addEventListener('mousemove', (e) => {
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY - 10) + 'px';
+        });
+
+        gradientLeft.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('visible');
+        });
+
+        gradientRight.addEventListener('mouseenter', (e) => {
+          tooltip.textContent = `${label} - Duration: ${(duration / 1000).toFixed(2)}ms (sampling uncertainty)`;
+          tooltip.classList.add('visible');
+        });
+
+        gradientRight.addEventListener('mousemove', (e) => {
+          tooltip.style.left = (e.pageX + 10) + 'px';
+          tooltip.style.top = (e.pageY - 10) + 'px';
+        });
+
+        gradientRight.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('visible');
+        });
+
+        row.appendChild(gradientLeft);
+        row.appendChild(bar);
+        row.appendChild(gradientRight);
+      });
+
+      container.appendChild(row);
+    });
+  </script>
+</body>
+</html>

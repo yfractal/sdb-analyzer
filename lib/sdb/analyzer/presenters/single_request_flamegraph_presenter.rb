@@ -1,7 +1,9 @@
 module Sdb
   module Analyzer
     module Presenters
-      class HtmlPresenter2
+      class SingleRequestFlamegraphPresenter
+        TEMPLATE = 'single_request_flamegraph_template.html'
+
         def initialize(roots)
           @roots = roots
         end
@@ -18,7 +20,7 @@ module Sdb
         end
 
         private
-        
+
         def collect_rows(rows, depth, node)
           rows[depth] ||= []
 
@@ -28,14 +30,7 @@ module Sdb
             node.iseq.label
           end
 
-          puts "node.duration=#{node.duration}"
-
-          duration, certainty = if node.duration == 0
-            # [500, 'uncertain']
-            [node.duration, 'certain']
-          else
-            [node.duration, 'certain']
-          end
+          duration, certainty = node.duration, 'certain'
 
           rows[depth] << [label, node.ts, duration, "bar0", certainty]
           node.children.each do |child|
@@ -55,9 +50,9 @@ module Sdb
           end.join(",\n        ")
 
           # Read template file
-          template_path = File.join(File.dirname(__FILE__), 'flamegraph_template.html')
+          template_path = File.join(File.dirname(__FILE__), TEMPLATE)
           template = File.read(template_path)
-          
+
           # Replace placeholder with data
           template
             .gsub('{{PROFILE_DATA}}', js_rows)
