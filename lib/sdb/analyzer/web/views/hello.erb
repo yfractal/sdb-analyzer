@@ -1,0 +1,40 @@
+<div class="main-content">
+  <div class="content-header">
+    <h2>Hello World</h2>
+    <div class="timestamp">Generated at: <%= timestamp %></div>
+  </div>
+  
+  <div class="content-body">
+    <div class="card">
+      <div class="card-header">
+        Greeting
+      </div>
+      <div class="card-body">
+        <h3 style="color: #28a745; margin-bottom: 1rem;"><%= message %></h3>
+        <p>This is a simple hello world page demonstrating the SDB Analyzer web interface.</p>
+        <p>You have successfully accessed this authenticated web application!</p>
+        
+        <div style="margin-top: 2rem;">
+          <a href="/" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        How This Works
+      </div>
+      <div class="card-body">
+        <p>This web interface is built using:</p>
+        <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+          <li><strong>Rack</strong> - The foundation web server interface</li>
+          <li><strong>ERB Templates</strong> - For rendering HTML views</li>
+          <li><strong>HTTP Basic Authentication</strong> - Secure access protection</li>
+          <li><strong>Session Management</strong> - Cookie-based sessions</li>
+        </ul>
+        
+        <p style="margin-top: 1rem;">This follows the same pattern as <a href="https://github.com/sidekiq/sidekiq" target="_blank" style="color: #007bff;">Sidekiq's web interface</a>, providing a clean, secure, and maintainable web UI without heavy framework dependencies.</p>
+      </div>
+    </div>
+  </div>
+</div> 

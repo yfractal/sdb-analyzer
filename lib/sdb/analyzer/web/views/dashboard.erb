@@ -1,0 +1,56 @@
+<div class="main-content">
+  <div class="content-header">
+    <h2>Dashboard</h2>
+    <div class="timestamp">Last updated: <%= timestamp %></div>
+  </div>
+
+  <div class="content-body">
+    <div class="row">
+      <div class="card">
+        <div class="card-header">
+          Welcome to SDB Analyzer
+        </div>
+        <div class="card-body">
+          <p>This is the SDB (Stack Debugger) Analyzer web interface. Here you can monitor and analyze stack traces from your Ruby applications.</p>
+
+          <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Quick Actions</h4>
+          <a href="/hello" class="btn btn-primary">View Hello World Page</a>
+
+          <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Features</h4>
+          <ul style="margin-left: 1.5rem;">
+            <li>Stack trace analysis and visualization</li>
+            <li>Performance profiling with flame graphs</li>
+            <li>Export data to various formats (HTML, PNG, JSON)</li>
+            <li>Integration with OpenTelemetry</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          System Information
+        </div>
+        <div class="card-body">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Ruby Version:</td>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= RUBY_VERSION %></td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Platform:</td>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= RUBY_PLATFORM %></td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Current Time:</td>
+              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= timestamp %></td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0; font-weight: 500;">Request Path:</td>
+              <td style="padding: 0.5rem 0;"><%= request_path %></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,6 +15,7 @@ require_relative "analyzer/presenters/image_presenter"
 require_relative "analyzer/presenters/otel_presenter"
 require_relative "analyzer/presenters/html_presenter"
 require_relative "analyzer/presenters/single_request_flamegraph_presenter"
+require_relative "analyzer/web"
 
 module Sdb
   module Analyzer
