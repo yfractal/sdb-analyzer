@@ -22,7 +22,9 @@ module Sdb
             prefix, raw_data = line.split('[symbol]')
             time = Time.parse(prefix.gsub("[INFO]", "").strip)
             ts = (time.to_f * 1000_000).to_i
-            raw_symbols << [ts, raw_data]
+            match = prefix.match(/\[INFO\]\s*\[(\d+)\]/)
+            process_id = match[1].to_i
+            raw_symbols << [ts, process_id, raw_data]
           else
             puts "unexpected line #{line}"
           end
