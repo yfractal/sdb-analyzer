@@ -8,16 +8,16 @@ module Sdb
       SEPARATOR = 18446744073709551615
 
       class Frame
-        attr_reader :trace_id, :ts, :iseqs
+        attr_reader :thread_id, :ts, :iseqs
 
         def self.from_raw(raw_frame)
-          trace_id, ts, _ = raw_frame
+          thread_id, ts, _ = raw_frame
           iseqs = raw_frame[2..].reverse # root to deepest
-          self.new(trace_id, ts, iseqs)
+          self.new(thread_id, ts, iseqs)
         end
 
-        def initialize(trace_id, ts, iseqs)
-          @trace_id = trace_id
+        def initialize(thread_id, ts, iseqs)
+          @thread_id = thread_id
           @ts = ts
           @iseqs = iseqs
         end
