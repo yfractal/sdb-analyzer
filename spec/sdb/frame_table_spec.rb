@@ -15,6 +15,7 @@ RSpec.describe Sdb::Analyzer::FrameTable do
     expect(frames.count).to be > 0
 
     frames.each do |frame|
+      expect(frame.process_id).to eq 35825
       expect(frame.thread_id).to eq 42060071
       expect(frame.ts).to be >= request.start_ts
       expect(frame.ts).to be <= request.end_ts

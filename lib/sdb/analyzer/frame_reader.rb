@@ -8,15 +8,17 @@ module Sdb
       SEPARATOR = 18446744073709551615
 
       class Frame
-        attr_reader :thread_id, :ts, :iseqs
+        attr_reader :process_id, :thread_id, :ts, :iseqs
 
         def self.from_raw(raw_frame)
+          process_id = raw_frame.pop
           thread_id, ts, _ = raw_frame
           iseqs = raw_frame[2..].reverse # root to deepest
-          self.new(thread_id, ts, iseqs)
+          self.new(process_id, thread_id, ts, iseqs)
         end
 
-        def initialize(thread_id, ts, iseqs)
+        def initialize(process_id, thread_id, ts, iseqs)
+          @process_id = process_id
           @thread_id = thread_id
           @ts = ts
           @iseqs = iseqs
@@ -31,6 +33,8 @@ module Sdb
           i = 0
           while i < data.count
             current_row = data[i]
+            process_id = current_row.pop
+
             next_row = data[i + 1]
             j = 0
 
@@ -39,6 +43,8 @@ module Sdb
                 j += 1
               elsif frame_ended?(j, current_row, next_row)
                 frame << current_row[j]
+                frame << process_id
+
                 frames << frame
                 frame = []
 

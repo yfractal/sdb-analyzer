@@ -12,9 +12,12 @@ module Sdb
 
         File.new(log).each_line do |line|
           if line.include?('[stack_frames]')
-            _, raw_data = line.split('[stack_frames]')
-
-            raw_frames << JSON.parse(raw_data)
+            prefix, raw_data = line.split('[stack_frames]')
+            match = prefix.match(/\[INFO\]\s*\[(\d+)\]/)
+            process_id = match[1].to_i
+            data = JSON.parse(raw_data)
+            data << process_id
+            raw_frames << data
           elsif line.include?('[symbol]')
             prefix, raw_data = line.split('[symbol]')
             time = Time.parse(prefix.gsub("[INFO]", "").strip)
