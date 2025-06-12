@@ -18,9 +18,8 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
               <thead>
                 <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller#Action</th>
                   <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
-                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller</th>
-                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Action</th>
                   <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Count</th>
                   <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Avg (ms)</th>
                   <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P50 (ms)</th>
@@ -32,10 +31,15 @@
                 <% request_analytics.each_with_index do |analytics, index| %>
                 <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
                   <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">
+                    <% if analytics[:controller] && analytics[:action] %>
+                      <%= analytics[:controller] %>#<%= analytics[:action] %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">
                     <code style="background-color: #e9ecef; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.85rem;"><%= analytics[:path] %></code>
                   </td>
-                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><%= analytics[:controller] || '-' %></td>
-                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><%= analytics[:action] || '-' %></td>
                   <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #dee2e6;">
                     <span style="background-color: #007bff; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;"><%= analytics[:request_count] %></span>
                   </td>
@@ -71,10 +75,8 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
               <thead>
                 <tr style="background-color: #f8f9fa;">
-                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Trace ID</th>
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller#Action <span style="font-size: 0.7rem; color: #6c757d;">(click for details)</span></th>
                   <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
-                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller</th>
-                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Action</th>
                   <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Status</th>
                   <th style="padding: 0.5rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Latency (ms)</th>
                   <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Start Time</th>
@@ -84,15 +86,19 @@
               </thead>
               <tbody>
                 <% requests.each_with_index do |req, index| %>
-                <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
-                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
-                    <code style="background-color: #e9ecef; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;"><%= req[:trace_id][0..7] %>...</code>
+                                 <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;">
+                    <% if req[:controller] && req[:action] %>
+                      <a href="/request/<%= req[:trace_id] %>" style="text-decoration: none; color: #007bff; font-weight: 500;">
+                        <%= req[:controller] %>#<%= req[:action] %>
+                      </a>
+                    <% else %>
+                      -
+                    <% end %>
                   </td>
                   <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
                     <code style="background-color: #e9ecef; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;"><%= req[:path] %></code>
                   </td>
-                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;"><%= req[:controller] || '-' %></td>
-                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;"><%= req[:action] || '-' %></td>
                   <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6;">
                     <% status_color = req[:status] == 200 ? '#28a745' : (req[:status] >= 400 ? '#dc3545' : '#ffc107') %>
                     <span style="background-color: <%= status_color %>; color: white; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.75rem; font-weight: 500;"><%= req[:status] %></span>
@@ -110,57 +116,11 @@
           <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
             <strong>Total Requests:</strong> <%= requests.length %>
             <br>
-            <em>Note: Trace IDs are truncated for display. Times shown in HH:MM:SS.mmm format.</em>
+            <em>Note: Controller#Action entries are clickable for detailed analysis. Times shown in HH:MM:SS.mmm format.</em>
           </div>
         </div>
       </div>
       <% end %>
-      
-      <div class="card">
-        <div class="card-header">
-          Welcome to SDB Analyzer
-        </div>
-        <div class="card-body">
-          <p>This is the SDB (Stack Debugger) Analyzer web interface. Here you can monitor and analyze stack traces from your Ruby applications.</p>
-
-          <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Quick Actions</h4>
-          <a href="/hello" class="btn btn-primary">View Hello World Page</a>
-
-          <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">Features</h4>
-          <ul style="margin-left: 1.5rem;">
-            <li>Stack trace analysis and visualization</li>
-            <li>Performance profiling with flame graphs</li>
-            <li>Export data to various formats (HTML, PNG, JSON)</li>
-            <li>Integration with OpenTelemetry</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          System Information
-        </div>
-        <div class="card-body">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Ruby Version:</td>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= RUBY_VERSION %></td>
-            </tr>
-            <tr>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Platform:</td>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= RUBY_PLATFORM %></td>
-            </tr>
-            <tr>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Current Time:</td>
-              <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= timestamp %></td>
-            </tr>
-            <tr>
-              <td style="padding: 0.5rem 0; font-weight: 500;">Request Path:</td>
-              <td style="padding: 0.5rem 0;"><%= request_path %></td>
-            </tr>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
 </div>
