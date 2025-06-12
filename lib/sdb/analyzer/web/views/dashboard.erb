@@ -59,6 +59,63 @@
       </div>
       <% end %>
       
+      <% if requests && !requests.empty? %>
+      <div class="card">
+        <div class="card-header">
+          Individual Requests
+        </div>
+        <div class="card-body">
+          <p style="margin-bottom: 1rem; color: #6c757d;">Complete list of all processed requests with detailed information.</p>
+          
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Trace ID</th>
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller</th>
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Action</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Status</th>
+                  <th style="padding: 0.5rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Latency (ms)</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Start Time</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">End Time</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Thread ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% requests.each_with_index do |req, index| %>
+                <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;"><%= req[:trace_id][0..7] %>...</code>
+                  </td>
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;"><%= req[:path] %></code>
+                  </td>
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;"><%= req[:controller] || '-' %></td>
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;"><%= req[:action] || '-' %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6;">
+                    <% status_color = req[:status] == 200 ? '#28a745' : (req[:status] >= 400 ? '#dc3545' : '#ffc107') %>
+                    <span style="background-color: <%= status_color %>; color: white; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.75rem; font-weight: 500;"><%= req[:status] %></span>
+                  </td>
+                  <td style="padding: 0.5rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.8rem;"><%= req[:latency] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:start_time] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:end_time] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:thread_id] %></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
+            <strong>Total Requests:</strong> <%= requests.length %>
+            <br>
+            <em>Note: Trace IDs are truncated for display. Times shown in HH:MM:SS.mmm format.</em>
+          </div>
+        </div>
+      </div>
+      <% end %>
+      
       <div class="card">
         <div class="card-header">
           Welcome to SDB Analyzer

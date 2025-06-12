@@ -36,14 +36,15 @@ module Sdb
 
         analyzer = Sdb::Analyzer::Core.new(sdb_log_path)
         request_analytics = calculate_request_analytics(analyzer)
+        requests = prepare_requests_data(analyzer)
 
         # Simple dashboard with some basic info
-        puts "request_analytics=#{request_analytics}"
         html = erb(:dashboard, {
                      title: 'SDB Analyzer Dashboard',
                      request_path: request.path_info,
                      timestamp: Time.now.strftime('%Y-%m-%d %H:%M:%S'),
-                     request_analytics: request_analytics || []
+                     request_analytics: request_analytics || [],
+                     requests: requests || []
                    })
         [200, {'Content-Type' => 'text/html'}, [html]]
       end
@@ -205,7 +206,7 @@ module Sdb
         analytics
       end
 
-      def percentile(sorted_array, percentile)
+            def percentile(sorted_array, percentile)
         return 0 if sorted_array.empty?
 
         index = (percentile / 100.0) * (sorted_array.length - 1)
@@ -213,6 +214,39 @@ module Sdb
         upper = sorted_array[index.ceil]
 
         lower + (upper - lower) * (index - index.floor)
+      end
+
+      def prepare_requests_data(analyzer)
+        return [] unless analyzer&.request_table&.requests
+
+        requests_data = analyzer.request_table.requests.map do |req|
+          # Calculate latency
+          latency = if req.start_ts && req.end_ts
+            (req.end_ts - req.start_ts) / 1_000.0  # Convert to milliseconds
+          else
+            req.cpu_time_ms || 0
+          end
+
+          # Format timestamps
+          start_time = req.start_ts ? Time.at(req.start_ts / 1_000_000_000.0).strftime('%H:%M:%S.%3N') : '-'
+          end_time = req.end_ts ? Time.at(req.end_ts / 1_000_000_000.0).strftime('%H:%M:%S.%3N') : '-'
+
+          {
+            trace_id: req.trace_id,
+            path: req.path,
+            controller: req.controller,
+            action: req.action,
+            status: req.status,
+            latency: latency.round(2),
+            start_time: start_time,
+            end_time: end_time,
+            thread_id: req.thread_id,
+            process_id: req.process_id
+          }
+        end
+
+        # Sort by start timestamp (most recent first)
+        requests_data.sort_by { |req| -(req[:trace_id] || '').hash }
       end
     end
   end
