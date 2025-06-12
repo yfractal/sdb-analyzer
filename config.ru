@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
+require_relative 'lib/sdb/analyzer'
 require_relative 'lib/sdb/analyzer/web'
 
 # Set default credentials if not provided via environment variables

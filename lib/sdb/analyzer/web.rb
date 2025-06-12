@@ -31,11 +31,19 @@ module Sdb
       private
 
       def dashboard(request)
+        # Initialize analyzer with sample data (you may want to make this configurable)
+        sdb_log_path = ENV.fetch('SDB_LOG_PATH', './spec/data/sdb.log')
+
+        analyzer = Sdb::Analyzer::Core.new(sdb_log_path)
+        request_analytics = calculate_request_analytics(analyzer)
+
         # Simple dashboard with some basic info
+        puts "request_analytics=#{request_analytics}"
         html = erb(:dashboard, {
                      title: 'SDB Analyzer Dashboard',
                      request_path: request.path_info,
-                     timestamp: Time.now.strftime('%Y-%m-%d %H:%M:%S')
+                     timestamp: Time.now.strftime('%Y-%m-%d %H:%M:%S'),
+                     request_analytics: request_analytics || []
                    })
         [200, {'Content-Type' => 'text/html'}, [html]]
       end
@@ -152,6 +160,59 @@ module Sdb
           use BasicAuth, username, password
           run Web
         end
+      end
+
+      def calculate_request_analytics(analyzer)
+        return [] unless analyzer&.request_table&.requests
+
+        # Group requests by path
+        grouped_requests = analyzer.request_table.requests.group_by(&:path)
+
+        analytics = grouped_requests.map do |path, requests|
+          # Calculate latencies in milliseconds
+          latencies = requests.map do |req|
+            if req.start_ts && req.end_ts
+              # Convert from nanoseconds to milliseconds
+              (req.end_ts - req.start_ts) / 1_000.0
+            else
+              req.cpu_time_ms || 0
+            end
+          end.compact.sort
+
+          next if latencies.empty?
+
+          # Calculate statistics
+          avg_latency = latencies.sum / latencies.size.to_f
+          p50 = percentile(latencies, 50)
+          p90 = percentile(latencies, 90)
+          p99 = percentile(latencies, 99)
+
+          # Get controller and action from first request (assuming they're the same for same path)
+          sample_request = requests.first
+
+          {
+            path: path,
+            controller: sample_request.controller,
+            action: sample_request.action,
+            request_count: requests.size,
+            avg_latency: avg_latency.round(2),
+            p50_latency: p50.round(2),
+            p90_latency: p90.round(2),
+            p99_latency: p99.round(2)
+          }
+        end.compact.sort_by { |item| -item[:request_count] } # Sort by request count descending
+
+        analytics
+      end
+
+      def percentile(sorted_array, percentile)
+        return 0 if sorted_array.empty?
+
+        index = (percentile / 100.0) * (sorted_array.length - 1)
+        lower = sorted_array[index.floor]
+        upper = sorted_array[index.ceil]
+
+        lower + (upper - lower) * (index - index.floor)
       end
     end
   end

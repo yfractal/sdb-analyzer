@@ -6,6 +6,59 @@
 
   <div class="content-body">
     <div class="row">
+      <% if request_analytics && !request_analytics.empty? %>
+      <div class="card">
+        <div class="card-header">
+          Request Analytics
+        </div>
+        <div class="card-body">
+          <p style="margin-bottom: 1rem; color: #6c757d;">Performance metrics grouped by request path. Latency values are in milliseconds.</p>
+          
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+              <thead>
+                <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller</th>
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Action</th>
+                  <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Count</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Avg (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P50 (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P90 (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P99 (ms)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% request_analytics.each_with_index do |analytics, index| %>
+                <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.85rem;"><%= analytics[:path] %></code>
+                  </td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><%= analytics[:controller] || '-' %></td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><%= analytics[:action] || '-' %></td>
+                  <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #dee2e6;">
+                    <span style="background-color: #007bff; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;"><%= analytics[:request_count] %></span>
+                  </td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:avg_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p50_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p90_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p99_latency] %></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
+            <strong>Total Requests:</strong> <%= request_analytics.sum { |a| a[:request_count] } %> | 
+            <strong>Unique Paths:</strong> <%= request_analytics.length %>
+            <br>
+            <em>Note: Latency calculated from request start/end timestamps. P50, P90, P99 represent 50th, 90th, and 99th percentiles respectively.</em>
+          </div>
+        </div>
+      </div>
+      <% end %>
+      
       <div class="card">
         <div class="card-header">
           Welcome to SDB Analyzer
