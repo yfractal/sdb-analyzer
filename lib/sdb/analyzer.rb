@@ -23,9 +23,13 @@ module Sdb
   module Analyzer
     class Error < StandardError; end
     class Core
+      attr_reader :request_table
+
       def initialize(sdb_log)
-        @frames, @symbols = Sdb::Analyzer::LogReader.read(sdb_log)
+        frames, @symbols, requests = Sdb::Analyzer::LogReader.read(sdb_log)
         @symbolizer = Sdb::Analyzer::Symbolizer2.new(@symbols)
+        @frame_table = Sdb::Analyzer::FrameTable.new(frames)
+        @request_table = Sdb::Analyzer::RequestTable.new(requests)
       end
 
       # def initialize(sdb_log, symbols_log)
@@ -34,9 +38,10 @@ module Sdb
       #   @symbolizer = Sdb::Analyzer::Symbolizer.new(@symbol_table, @time_converter)
       # end
 
-      def analyze(trace_id)
-        frames = @frames.select { |frame| frame.trace_id == trace_id }
-        frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(frames, @symbolizer)
+      def analyze(request)
+        frames = @frame_table.find_frames(request)
+
+        frame_analyzer = Sdb::Analyzer::FrameAnalyzer.new(request.process_id, frames, @symbolizer)
 
         frame_analyzer.walk
       end

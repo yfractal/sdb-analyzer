@@ -9,6 +9,7 @@ module Sdb
       def self.read(log, trace_id = nil)
         raw_frames = []
         raw_symbols = []
+        requests = []
 
         File.new(log).each_line do |line|
           if line.include?('[stack_frames]')
@@ -25,6 +26,8 @@ module Sdb
             match = prefix.match(/\[INFO\]\s*\[(\d+)\]/)
             process_id = match[1].to_i
             raw_symbols << [ts, process_id, raw_data]
+          elsif line.include?('[request]')
+            requests << line
           else
             puts "unexpected line #{line}"
           end
@@ -37,7 +40,7 @@ module Sdb
           frames = frames.select { |frame| frame.trace_id == trace_id }
         end
 
-        [frames, symbols]
+        [frames, symbols, requests]
       end
 
 

@@ -35,7 +35,8 @@ module Sdb
 
       attr_reader :roots
 
-      def initialize(frames, symbolizer)
+      def initialize(process_id, frames, symbolizer)
+        @process_id = process_id
         @frames = frames
         @symbolizer = symbolizer
         @stack = []
@@ -115,7 +116,7 @@ module Sdb
       end
 
       def find_iseq(iseq_addr, ts)
-        @symbolizer.iseq(iseq_addr, ts)
+        @symbolizer.iseq(@process_id, iseq_addr, ts)
       end
 
       def same_func?(iseq0, iseq1)
