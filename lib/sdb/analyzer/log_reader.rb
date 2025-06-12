@@ -9,17 +9,25 @@ module Sdb
       def self.read(log, trace_id = nil)
         raw_frames = []
         raw_symbols = []
+        requests = []
 
         File.new(log).each_line do |line|
           if line.include?('[stack_frames]')
-            _, raw_data = line.split('[stack_frames]')
-
-            raw_frames << JSON.parse(raw_data)
+            prefix, raw_data = line.split('[stack_frames]')
+            match = prefix.match(/\[INFO\]\s*\[(\d+)\]/)
+            process_id = match[1].to_i
+            data = JSON.parse(raw_data)
+            data << process_id
+            raw_frames << data
           elsif line.include?('[symbol]')
             prefix, raw_data = line.split('[symbol]')
             time = Time.parse(prefix.gsub("[INFO]", "").strip)
             ts = (time.to_f * 1000_000).to_i
-            raw_symbols << [ts, raw_data]
+            match = prefix.match(/\[INFO\]\s*\[(\d+)\]/)
+            process_id = match[1].to_i
+            raw_symbols << [ts, process_id, raw_data]
+          elsif line.include?('[request]')
+            requests << line
           else
             puts "unexpected line #{line}"
           end
@@ -32,7 +40,7 @@ module Sdb
           frames = frames.select { |frame| frame.trace_id == trace_id }
         end
 
-        [frames, symbols]
+        [frames, symbols, requests]
       end
 
 

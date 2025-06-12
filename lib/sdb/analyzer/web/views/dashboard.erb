@@ -1,0 +1,268 @@
+<div class="main-content">
+  <div class="content-header">
+    <h2>Dashboard</h2>
+    <div class="timestamp">Last updated: <%= timestamp %></div>
+  </div>
+
+  <div class="content-body">
+    <div class="row">
+      <% if request_analytics && !request_analytics.empty? %>
+      <div class="card">
+        <div class="card-header">
+          Request Analytics
+        </div>
+        <div class="card-body">
+          <p style="margin-bottom: 1rem; color: #6c757d;">Performance metrics grouped by request path. Latency values are in milliseconds.</p>
+          
+          <div style="overflow-x: auto;">
+            <table id="analytics-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+              <thead>
+                <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller#Action</th>
+                  <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
+                  <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Count</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Avg (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P50 (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P90 (ms)</th>
+                  <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">P99 (ms)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% request_analytics.each_with_index do |analytics, index| %>
+                <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">
+                    <% if analytics[:controller] && analytics[:action] %>
+                      <%= analytics[:controller] %>#<%= analytics[:action] %>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.85rem;"><%= analytics[:path] %></code>
+                  </td>
+                  <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #dee2e6;">
+                    <span style="background-color: #007bff; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;"><%= analytics[:request_count] %></span>
+                  </td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:avg_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p50_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p90_latency] %></td>
+                  <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= analytics[:p99_latency] %></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
+            <strong>Total Requests:</strong> <%= request_analytics.sum { |a| a[:request_count] } %> | 
+            <strong>Unique Paths:</strong> <%= request_analytics.length %>
+            <br>
+            <em>Note: Latency calculated from request start/end timestamps. P50, P90, P99 represent 50th, 90th, and 99th percentiles respectively.</em>
+          </div>
+        </div>
+      </div>
+      <% end %>
+      
+      <% if requests && !requests.empty? %>
+      <div class="card">
+        <div class="card-header">
+          Individual Requests
+        </div>
+        <div class="card-body">
+          <p style="margin-bottom: 1rem; color: #6c757d;">Complete list of all processed requests with detailed information.</p>
+          
+          <div style="overflow-x: auto;">
+            <table id="requests-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Controller#Action <span style="font-size: 0.7rem; color: #6c757d;">(click for details)</span></th>
+                  <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600;">Path</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Status</th>
+                  <th style="padding: 0.5rem; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600;">Latency (ms)</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Start Time</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">End Time</th>
+                  <th style="padding: 0.5rem; text-align: center; border-bottom: 2px solid #dee2e6; font-weight: 600;">Thread ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% requests.each_with_index do |req, index| %>
+                                 <tr style="<%= index.even? ? 'background-color: #f8f9fa;' : '' %>">
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.8rem;">
+                    <% if req[:controller] && req[:action] %>
+                      <a href="/request/<%= req[:trace_id] %>" style="text-decoration: none; color: #007bff; font-weight: 500;">
+                        <%= req[:controller] %>#<%= req[:action] %>
+                      </a>
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                  <td style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;"><%= req[:path] %></code>
+                  </td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6;">
+                    <% status_color = req[:status] == 200 ? '#28a745' : (req[:status] >= 400 ? '#dc3545' : '#ffc107') %>
+                    <span style="background-color: <%= status_color %>; color: white; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.75rem; font-weight: 500;"><%= req[:status] %></span>
+                  </td>
+                  <td style="padding: 0.5rem; text-align: right; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.8rem;"><%= req[:latency] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:start_time] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:end_time] %></td>
+                  <td style="padding: 0.5rem; text-align: center; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.75rem;"><%= req[:thread_id] %></td>
+                </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
+            <strong>Total Requests:</strong> <%= requests.length %>
+            <br>
+            <em>Note: Controller#Action entries are clickable for detailed analysis. Times shown in HH:MM:SS.mmm format.</em>
+          </div>
+        </div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add sorting functionality to all tables
+  function addTableSorting(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    
+    const headers = table.querySelectorAll('thead th');
+    const tbody = table.querySelector('tbody');
+    let sortDirection = {};
+    
+    headers.forEach((header, index) => {
+      // Skip headers that shouldn't be sortable (like status badges with complex content)
+      if (header.textContent.includes('(click for details)')) {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+        header.style.position = 'relative';
+        
+        header.addEventListener('click', function() {
+          const currentDirection = sortDirection[index] || 'asc';
+          const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+          sortDirection[index] = newDirection;
+          
+          // Remove sort indicators from all headers
+          headers.forEach(h => {
+            const indicator = h.querySelector('.sort-indicator');
+            if (indicator) indicator.remove();
+          });
+          
+          // Add sort indicator to current header
+          const indicator = document.createElement('span');
+          indicator.className = 'sort-indicator';
+          indicator.textContent = newDirection === 'asc' ? ' ↑' : ' ↓';
+          indicator.style.marginLeft = '5px';
+          indicator.style.color = '#007bff';
+          header.appendChild(indicator);
+          
+          sortTable(tbody, index, newDirection);
+        });
+      } else if (!header.textContent.includes('Status') && header.textContent.trim() !== '') {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+        header.style.position = 'relative';
+        
+        header.addEventListener('click', function() {
+          const currentDirection = sortDirection[index] || 'asc';
+          const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+          sortDirection[index] = newDirection;
+          
+          // Remove sort indicators from all headers
+          headers.forEach(h => {
+            const indicator = h.querySelector('.sort-indicator');
+            if (indicator) indicator.remove();
+          });
+          
+          // Add sort indicator to current header
+          const indicator = document.createElement('span');
+          indicator.className = 'sort-indicator';
+          indicator.textContent = newDirection === 'asc' ? ' ↑' : ' ↓';
+          indicator.style.marginLeft = '5px';
+          indicator.style.color = '#007bff';
+          header.appendChild(indicator);
+          
+          sortTable(tbody, index, newDirection);
+        });
+      }
+    });
+  }
+  
+  function sortTable(tbody, columnIndex, direction) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+      const aCell = a.children[columnIndex];
+      const bCell = b.children[columnIndex];
+      
+      if (!aCell || !bCell) return 0;
+      
+      let aValue = getCellValue(aCell);
+      let bValue = getCellValue(bCell);
+      
+      // Try to parse as numbers first
+      const aNum = parseFloat(aValue);
+      const bNum = parseFloat(bValue);
+      
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return direction === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+      
+      // Handle time values (HH:MM:SS.mmm format)
+      if (aValue.match(/^\d{1,2}:\d{2}:\d{2}\.\d{3}$/)) {
+        const aTime = timeToSeconds(aValue);
+        const bTime = timeToSeconds(bValue);
+        return direction === 'asc' ? aTime - bTime : bTime - aTime;
+      }
+      
+      // String comparison
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+      
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+    
+    // Re-apply alternating row colors
+    rows.forEach((row, index) => {
+      if (index % 2 === 0) {
+        row.style.backgroundColor = '#f8f9fa';
+      } else {
+        row.style.backgroundColor = '';
+      }
+    });
+  }
+  
+  function getCellValue(cell) {
+    // Get text content, but handle links and code elements
+    const link = cell.querySelector('a');
+    const code = cell.querySelector('code');
+    const span = cell.querySelector('span');
+    
+    if (link) return link.textContent.trim();
+    if (code) return code.textContent.trim();
+    if (span) return span.textContent.trim();
+    return cell.textContent.trim();
+  }
+  
+  function timeToSeconds(timeStr) {
+    const [time, ms] = timeStr.split('.');
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+    return hours * 3600 + minutes * 60 + seconds + (parseInt(ms) / 1000);
+  }
+  
+  // Initialize sorting for both tables
+  addTableSorting('analytics-table');
+  addTableSorting('requests-table');
+});
+</script>

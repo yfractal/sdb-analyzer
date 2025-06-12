@@ -1,0 +1,102 @@
+<div class="main-content">
+  <div class="content-header">
+    <h2>Request Detail</h2>
+    <div class="timestamp">Last updated: <%= timestamp %></div>
+    <div style="margin-top: 0.5rem;">
+      <a href="/" style="color: #007bff; text-decoration: none; font-size: 0.9rem;">← Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="content-body">
+    <div class="row">
+      <!-- Request Information Card -->
+      <div class="card">
+        <div class="card-header">
+          Request Information
+        </div>
+        <div class="card-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Trace ID:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.85rem;"><%= request_data[:trace_id] %></code>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Path:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;">
+                    <code style="background-color: #e9ecef; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.85rem;"><%= request_data[:path] %></code>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Controller:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= request_data[:controller] || '-' %></td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Action:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;"><%= request_data[:action] || '-' %></td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; font-weight: 500;">Status:</td>
+                  <td style="padding: 0.5rem 0;">
+                    <% status_color = request_data[:status] == 200 ? '#28a745' : (request_data[:status] >= 400 ? '#dc3545' : '#ffc107') %>
+                    <span style="background-color: <%= status_color %>; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;"><%= request_data[:status] %></span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            
+            <div>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Latency:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= request_data[:latency] %>ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">CPU Time:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= request_data[:cpu_time_ms] || '-' %>ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Start Time:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.85rem;"><%= request_data[:start_time] %></td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">End Time:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-family: monospace; font-size: 0.85rem;"><%= request_data[:end_time] %></td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-weight: 500;">Thread ID:</td>
+                  <td style="padding: 0.5rem 0; border-bottom: 1px solid #dee2e6; font-family: monospace;"><%= request_data[:thread_id] %></td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem 0; font-weight: 500;">Process ID:</td>
+                  <td style="padding: 0.5rem 0; font-family: monospace;"><%= request_data[:process_id] %></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Flamegraph Card -->
+      <div class="card">
+        <div class="card-header">
+          Performance Flamegraph
+        </div>
+        <div class="card-body">
+
+          <!-- Embed the flamegraph HTML directly -->
+          <div style="background: white; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;">
+            <%= flamegraph_html %>
+          </div>
+          
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6; font-size: 0.85rem; color: #6c757d;">
+            <em>Note: The flamegraph shows sampled stack traces. Each bar represents a function call, with width proportional to execution time.</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
