@@ -2,7 +2,8 @@ require "sdb/analyzer"
 require 'byebug'
 
 analyzer = Sdb::Analyzer::Core.new('./spec/data/sdb.log')
-roots = analyzer.analyze(11111122)
+request = analyzer.request_table.requests.first
+roots = analyzer.analyze(request)
 
 # presenter = Sdb::Analyzer::Presenters::ImagePresenter.new(roots)
 # presenter.render('./demos/demo-full.png')
