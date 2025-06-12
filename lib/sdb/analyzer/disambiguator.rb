@@ -19,6 +19,7 @@ module Sdb
 
       private
 
+      # fold single child node
       def do_disambiguate_node(parent)
         current = parent
         prev = nil
@@ -28,10 +29,15 @@ module Sdb
           current = current.children.first
         end
 
-        parent.children = [prev]
-        prev.children = current.children
+        if prev
+          parent.children = [prev]
+          prev.children = current.children
 
-        current.children
+          current.children
+        else
+          # the first child has multiple children, do not fold
+          parent.children
+        end
       end
 
       # Disambiguator
